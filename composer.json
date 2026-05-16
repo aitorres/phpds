@@ -1,0 +1,59 @@
+{
+    "name": "phpds/pds",
+    "version": "0.1.0",
+    "description": "A barebones implementation of an atproto PDS in PHP and Slim Framework 4.",
+    "keywords": [
+        "atproto",
+        "pds",
+        "php",
+        "bluesky",
+        "personal data server",
+        "slim framework"
+    ],
+    "homepage": "http://github.com/aitorres/phpds",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andrés Ignacio Torres",
+            "email": "dev@aitorres.com",
+            "homepage": "https://aitorres.com/"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "ext-json": "*",
+        "monolog/monolog": "^3.10.0",
+        "php-di/php-di": "^7.1.1",
+        "slim/psr7": "^1.5",
+        "slim/slim": "^4.10"
+    },
+    "require-dev": {
+        "jangregor/phpstan-prophecy": "^2.3.0",
+        "phpspec/prophecy-phpunit": "^2.0",
+        "phpstan/extension-installer": "^1.2.0",
+        "phpstan/phpstan": "^2.1.54",
+        "phpunit/phpunit": "^13.1.10",
+        "squizlabs/php_codesniffer": "^4.0.1"
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        },
+        "process-timeout": 0,
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "start": "php -S localhost:8080 -t public",
+        "test": "phpunit"
+    }
+}
