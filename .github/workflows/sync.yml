@@ -9,7 +9,7 @@ jobs:
   sync:
     name: Sync to tangled.sh repo
     runs-on: ubuntu-latest
-    if: github.repository == 'aitorres/pds'
+    if: github.repository == 'aitorres/phpds'
     timeout-minutes: 5
     steps:
       - name: Checkout
