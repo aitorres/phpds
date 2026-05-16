@@ -1,5 +1,7 @@
 .idea/
 .vscode/
+!.vscdode/extensions.json
+!.vscode/settings.json
 /coverage/
 /vendor/
 /logs/*

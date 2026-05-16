@@ -1,0 +1,7 @@
+{
+    "phpcs.enable": true,
+    "phpcs.executablePath": "vendor/bin/phpcs",
+    "phpcs.standard": "PSR12",
+    "phpcs.showWarnings": true,
+    "phpcs.autoFixOnSave": true
+}
