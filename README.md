@@ -11,6 +11,15 @@ Then:
 * Point your virtual host document root to `phpds`'s `public/` directory.
 * Ensure `logs/` is web writable.
 
+### Docker
+
+You can also run the application with `docker`:
+
+```bash
+docker build -t phpds .
+docker run -p 8080:8080 phpds
+```
+
 ## Development
 
 To run the application in development, you can run these commands

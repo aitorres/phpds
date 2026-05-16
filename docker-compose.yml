@@ -6,13 +6,15 @@ volumes:
 
 services:
     slim:
-        image: php:8.5-alpine
-        working_dir: /var/www
-        command: php -S 0.0.0.0:8080 -t public
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: phpds:local
         environment:
+            APP_ENV: production
+            PORT: 8080
             docker: "true"
         ports:
             - "8080:8080"
         volumes:
-            - .:/var/www
             - logs:/var/www/logs
