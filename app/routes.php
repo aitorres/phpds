@@ -9,7 +9,14 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
 use Slim\Interfaces\RouteCollectorProxyInterface as Group;
 
-const ASCII_ART = <<<ASCII
+return function (App $app) {
+    $app->options('/{routes:.*}', function (Request $request, Response $response) {
+        // CORS Pre-Flight OPTIONS Request Handler
+        return $response;
+    });
+
+    $app->get('/', function (Request $request, Response $response) {
+        $asciiArt = <<<ASCII
        _               _
       | |             | |
  _ __ | |__  _ __   __| |___
@@ -20,14 +27,7 @@ const ASCII_ART = <<<ASCII
 |_|         |_|
 ASCII;
 
-return function (App $app) {
-    $app->options('/{routes:.*}', function (Request $request, Response $response) {
-        // CORS Pre-Flight OPTIONS Request Handler
-        return $response;
-    });
-
-    $app->get('/', function (Request $request, Response $response) {
-        $response->getBody()->write("<pre>" . ASCII_ART . "</pre>");
+        $response->getBody()->write("<pre>{$asciiArt}</pre>");
         $response->getBody()->write("<p>this is phpds, an atproto personal data server implemented in PHP!</p>");
         $response->getBody()->write("<p>useful routes are under /xrpc/</p>");
         $response->getBody()->write("<p>please don't use this in prod!</p>");
