@@ -41,13 +41,22 @@ jobs:
           esac
 
           install -m 700 -d ~/.ssh
-          printf '%s' "$TANGLED_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          key_file=~/.ssh/id_tangled
+
+          if printf '%s' "$TANGLED_SSH_PRIVATE_KEY" | grep -q 'BEGIN .*PRIVATE KEY'; then
+            printf '%s\n' "$TANGLED_SSH_PRIVATE_KEY" | tr -d '\r' > "$key_file"
+          else
+            printf '%s' "$TANGLED_SSH_PRIVATE_KEY" | tr -d '\r\n\t ' | base64 --decode > "$key_file"
+          fi
+
+          chmod 600 "$key_file"
+          ssh-keygen -y -f "$key_file" > /dev/null
+
           ssh-keyscan -H "$ssh_host" >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
           git remote add tangled "$TANGLED_REPO_URL" 2>/dev/null || \
           git remote set-url tangled "$TANGLED_REPO_URL"
 
-          GIT_SSH_COMMAND='ssh -i ~/.ssh/id_rsa -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes' \
+          GIT_SSH_COMMAND="ssh -i $key_file -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
             git push tangled HEAD:refs/heads/main
