@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Application\Settings\Settings;
 use App\Application\Settings\SettingsInterface;
 use DI\ContainerBuilder;
-use Monolog\Logger;
+use Monolog\Level;
 
 return function (ContainerBuilder $containerBuilder) {
 
@@ -19,8 +19,15 @@ return function (ContainerBuilder $containerBuilder) {
                 'logger' => [
                     'name' => 'slim-app',
                     'path' => isset($_ENV['docker']) ? 'php://stdout' : __DIR__ . '/../logs/app.log',
-                    'level' => Logger::DEBUG,
+                    'level' => Level::Debug,
                 ],
+                // PDS-specific settings
+                'pds' => [
+                    'hostname' => $_ENV['PDS_HOSTNAME'] ?? throw new \RuntimeException('PDS_HOSTNAME is required'),
+                    'privacyPolicyUrl' => $_ENV['PDS_PRIVACY_POLICY_URL'] ?? null,
+                    'termsOfServiceUrl' => $_ENV['PDS_TERMS_OF_SERVICE_URL'] ?? null,
+                    'email' => $_ENV['PDS_CONTACT_EMAIL_ADDRESS'] ?? null,
+                ]
             ]);
         }
     ]);
