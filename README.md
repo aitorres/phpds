@@ -62,6 +62,10 @@ To run PHPCS before every commit, enable the tracked Git hook with:
 git config core.hooksPath .githooks
 ```
 
+## Repo mirror
+
+This repository is automatically synced one-way from [GitHub (aitorres/phpds)](https://github.com/aitorres/phpds) to [tangled.sh (andresitorresm.com/phpds)](https://tangled.sh/andresitorresm.com/phpds).
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

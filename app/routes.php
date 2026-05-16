@@ -32,6 +32,7 @@ ASCII;
         $response->getBody()->write("<p>useful routes are under /xrpc/</p>");
         $response->getBody()->write("<p>please don't use this in prod!</p>");
         $response->getBody()->write("<p>with love, <a href='https://bsky.app/profile/andresitorresm.com'>@andresitorresm.com</a></p>");
+        $response->getBody()->write("<p>source code: <a href='https://github.com/aitorres/phpds'>GitHub</a> and <a href='https://tangled.sh/andresitorresm.com/phpds'>tangled.sh</a></p>");
         return $response;
     });
 
