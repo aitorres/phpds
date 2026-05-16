@@ -1,6 +1,6 @@
 .idea/
-.vscode/
-!.vscdode/extensions.json
+.vscode/*
+!.vscode/extensions.json
 !.vscode/settings.json
 /coverage/
 /vendor/
