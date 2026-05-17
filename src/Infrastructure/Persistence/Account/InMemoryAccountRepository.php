@@ -28,7 +28,7 @@ class InMemoryAccountRepository implements AccountRepository
                     did: "did:web:alice.{$hostname}",
                     email: "alice@{$hostname}",
                     passwordScrypt: 'placeholder-scrypt-hash',
-                    emailConfirmedAt: '2024-01-01T00:00:00Z',
+                    emailConfirmedAt: new \DateTimeImmutable('2024-01-01T00:00:00Z'),
                     invitesDisabled: false,
                 ),
                 new Account(
@@ -42,7 +42,7 @@ class InMemoryAccountRepository implements AccountRepository
                     did: 'did:plc:carol000000000000000000000',
                     email: "carol@{$hostname}",
                     passwordScrypt: 'placeholder-scrypt-hash',
-                    emailConfirmedAt: '2024-01-03T00:00:00Z',
+                    emailConfirmedAt: new \DateTimeImmutable('2024-01-03T00:00:00Z'),
                     invitesDisabled: true,
                 ),
             ];

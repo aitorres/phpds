@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Account;
 
+use DateTimeImmutable;
 use JsonSerializable;
 
 class Account implements JsonSerializable
@@ -14,7 +15,7 @@ class Account implements JsonSerializable
 
     private string $passwordScrypt;
 
-    private ?string $emailConfirmedAt;
+    private ?DateTimeImmutable $emailConfirmedAt;
 
     private bool $invitesDisabled;
 
@@ -22,7 +23,7 @@ class Account implements JsonSerializable
         string $did,
         string $email,
         string $passwordScrypt,
-        ?string $emailConfirmedAt = null,
+        ?DateTimeImmutable $emailConfirmedAt = null,
         bool $invitesDisabled = false
     ) {
         $this->did = $did;
@@ -47,7 +48,7 @@ class Account implements JsonSerializable
         return $this->passwordScrypt;
     }
 
-    public function getEmailConfirmedAt(): ?string
+    public function getEmailConfirmedAt(): ?DateTimeImmutable
     {
         return $this->emailConfirmedAt;
     }
@@ -63,7 +64,7 @@ class Account implements JsonSerializable
         return [
             'did' => $this->did,
             'email' => $this->email,
-            'emailConfirmedAt' => $this->emailConfirmedAt,
+            'emailConfirmedAt' => $this->emailConfirmedAt?->format(DATE_ATOM),
             'invitesDisabled' => $this->invitesDisabled,
         ];
     }

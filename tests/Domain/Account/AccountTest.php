@@ -5,24 +5,27 @@ declare(strict_types=1);
 namespace Tests\Domain\Account;
 
 use App\Domain\Account\Account;
+use DateTimeImmutable;
 use Tests\TestCase;
 
 class AccountTest extends TestCase
 {
     public function testGettersWithAllFields(): void
     {
+        $emailConfirmedAt = new DateTimeImmutable('2026-01-01T00:00:00Z');
+
         $account = new Account(
             did: 'did:web:alice.pds.test',
             email: 'alice@pds.test',
             passwordScrypt: 'hash',
-            emailConfirmedAt: '2024-01-01T00:00:00Z',
+            emailConfirmedAt: $emailConfirmedAt,
             invitesDisabled: true,
         );
 
         $this->assertSame('did:web:alice.pds.test', $account->getDid());
         $this->assertSame('alice@pds.test', $account->getEmail());
         $this->assertSame('hash', $account->getPasswordScrypt());
-        $this->assertSame('2024-01-01T00:00:00Z', $account->getEmailConfirmedAt());
+        $this->assertEquals($emailConfirmedAt, $account->getEmailConfirmedAt());
         $this->assertTrue($account->isInvitesDisabled());
     }
 
@@ -49,13 +52,13 @@ class AccountTest extends TestCase
         $this->assertSame('alice@pds.test', $account->getEmail());
     }
 
-    public function testJsonSerializeOmitsPasswordScrypt(): void
+    public function testJsonSerializeFormatsDatetimeAndOmitsPasswordScrypt(): void
     {
         $account = new Account(
             did: 'did:web:alice.pds.test',
             email: 'alice@pds.test',
             passwordScrypt: 'secret',
-            emailConfirmedAt: '2024-01-01T00:00:00Z',
+            emailConfirmedAt: new DateTimeImmutable('2026-01-01T00:00:00Z'),
             invitesDisabled: false,
         );
 
@@ -64,7 +67,7 @@ class AccountTest extends TestCase
         $this->assertSame([
             'did' => 'did:web:alice.pds.test',
             'email' => 'alice@pds.test',
-            'emailConfirmedAt' => '2024-01-01T00:00:00Z',
+            'emailConfirmedAt' => '2026-01-01T00:00:00+00:00',
             'invitesDisabled' => false,
         ], $json);
         $this->assertArrayNotHasKey('passwordScrypt', $json);
