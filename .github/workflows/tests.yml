@@ -36,4 +36,26 @@ jobs:
         run: vendor/bin/phpstan
 
       - name: Tests
-        run: vendor/bin/phpunit --coverage-clover clover.xml
+        if: '!matrix.analysis'
+        run: vendor/bin/phpunit
+
+      - name: Tests with coverage
+        if: matrix.analysis
+        run: vendor/bin/phpunit --coverage-clover clover.xml --coverage-text=coverage.txt
+
+      - name: Upload coverage artifact
+        if: matrix.analysis
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-clover
+          path: clover.xml
+
+      - name: Publish coverage summary
+        if: matrix.analysis
+        run: |
+          {
+            echo '## Coverage'
+            echo '```'
+            cat coverage.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
