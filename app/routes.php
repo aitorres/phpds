@@ -42,6 +42,11 @@ ASCII;
         return $response;
     });
 
+    $app->get('/robots.txt', function (Request $request, Response $response) {
+        $response->getBody()->write("User-agent: *\nAllow: /");
+        return $response->withHeader('Content-Type', 'text/plain');
+    });
+
     $app->group('/xrpc', function (Group $group) {
         // atproto server
         $group->get('/com.atproto.server.describeServer', DescribeServerAction::class);
