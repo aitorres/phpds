@@ -54,6 +54,21 @@ class XrpcException extends RuntimeException
         );
     }
 
+    public static function invalidParam(
+        string $actionName,
+        string $reason,
+        string $value
+    ): self {
+        return self::invalidRequest(
+            sprintf(
+                'Invalid %s params: %s (got "%s")',
+                $actionName,
+                $reason,
+                $value
+            )
+        );
+    }
+
     public static function invalidRequest(string $message, string $error = 'InvalidRequest'): self
     {
         return new self($error, $message, StatusCodeInterface::STATUS_BAD_REQUEST);

@@ -73,15 +73,14 @@ class ResolveHandleAction extends PdsAction
 
     private function validateHandle(string $handle): void
     {
-        $errorCode = 'InvalidHandle';
         $length = strlen($handle);
 
-        if ($length < 3) {
-            throw XrpcException::invalidRequest('Handle too short', $errorCode);
-        }
-
-        if ($length > 18) {
-            throw XrpcException::invalidRequest('Handle too long', $errorCode);
+        if ($length < 3 || $length > 18) {
+            throw XrpcException::invalidParam(
+                $this->actionName,
+                'Invalid handle',
+                $handle
+            );
         }
     }
 }

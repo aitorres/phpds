@@ -55,4 +55,20 @@ class XrpcExceptionTest extends TestCase
         );
         $this->assertSame(400, $exception->getStatusCode());
     }
+
+    public function testInvalidParamFormatsMessageWithValue(): void
+    {
+        $exception = XrpcException::invalidParam(
+            'com.atproto.identity.resolveHandle',
+            'Invalid handle',
+            'a'
+        );
+
+        $this->assertSame('InvalidRequest', $exception->getError());
+        $this->assertSame(
+            'Invalid com.atproto.identity.resolveHandle params: Invalid handle (got "a")',
+            $exception->getMessage()
+        );
+        $this->assertSame(400, $exception->getStatusCode());
+    }
 }
