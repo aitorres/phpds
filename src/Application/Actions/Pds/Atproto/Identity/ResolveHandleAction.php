@@ -51,6 +51,7 @@ class ResolveHandleAction extends PdsAction
             $actor = $this->actorRepository->findActorByHandle($handleParam);
             return $this->respondWithData(new ResolveHandleResponse($actor->getDid()));
         } catch (ActorNotFoundException $e) {
+            /** @var array{hostname: string} $pdsSettings */
             $pdsSettings = $this->settings->get('pds');
             $hostname = $pdsSettings['hostname'];
             if (str_ends_with($handleParam, ".{$hostname}")) {

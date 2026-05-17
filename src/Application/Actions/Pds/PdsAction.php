@@ -21,7 +21,7 @@ abstract class PdsAction extends Action
         $this->actionName = $actionName;
     }
 
-    public function throwMissingKeyException(string $key): void
+    public function throwMissingKeyException(string $key): never
     {
         throw XrpcException::missingParam($this->actionName, $key);
     }

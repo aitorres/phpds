@@ -13,11 +13,13 @@ use Tests\TestCase;
 
 class ActionTest extends TestCase
 {
-    public function testActionSetsHttpCodeInRespond()
+    public function testActionSetsHttpCodeInRespond(): void
     {
         $app = $this->getAppInstance();
         $container = $app->getContainer();
+        self::assertNotNull($container);
         $logger = $container->get(LoggerInterface::class);
+        self::assertInstanceOf(LoggerInterface::class, $logger);
 
         $testAction = new class ($logger) extends Action {
             public function __construct(
@@ -46,11 +48,13 @@ class ActionTest extends TestCase
         $this->assertEquals(202, $response->getStatusCode());
     }
 
-    public function testActionSetsHttpCodeRespondData()
+    public function testActionSetsHttpCodeRespondData(): void
     {
         $app = $this->getAppInstance();
         $container = $app->getContainer();
+        self::assertNotNull($container);
         $logger = $container->get(LoggerInterface::class);
+        $this->assertInstanceOf(LoggerInterface::class, $logger);
 
         $testAction = new class ($logger) extends Action {
             public function __construct(

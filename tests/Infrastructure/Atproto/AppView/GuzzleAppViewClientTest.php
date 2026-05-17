@@ -19,12 +19,13 @@ class GuzzleAppViewClientTest extends TestCase
 {
     /**
      * @param list<Response|\Throwable> $queue
-     * @param list<array{request: \Psr\Http\Message\RequestInterface}> $history
+     * @param array<int, array<string, mixed>> $history
      */
     private function makeClient(array $queue, array &$history = []): GuzzleAppViewClient
     {
         $mock = new MockHandler($queue);
         $stack = HandlerStack::create($mock);
+        /** @phpstan-ignore parameterByRef.type */
         $stack->push(Middleware::history($history));
 
         $httpClient = new Client([
@@ -39,7 +40,7 @@ class GuzzleAppViewClientTest extends TestCase
     {
         $history = [];
         $client = $this->makeClient(
-            [new Response(200, [], json_encode(['did' => 'did:plc:abc']))],
+            [new Response(200, [], (string) json_encode(['did' => 'did:plc:abc']))],
             $history
         );
 
@@ -65,7 +66,7 @@ class GuzzleAppViewClientTest extends TestCase
             new \GuzzleHttp\Exception\BadResponseException(
                 'Bad Request',
                 $request,
-                new Response(400, [], json_encode(['error' => 'InvalidRequest', 'message' => 'nope']))
+                new Response(400, [], (string) json_encode(['error' => 'InvalidRequest', 'message' => 'nope']))
             ),
         ]);
 
@@ -87,7 +88,7 @@ class GuzzleAppViewClientTest extends TestCase
     public function testResolveHandleThrowsWhenDidFieldMissing(): void
     {
         $client = $this->makeClient([
-            new Response(200, [], json_encode(['notTheDid' => 'oops'])),
+            new Response(200, [], (string) json_encode(['notTheDid' => 'oops'])),
         ]);
 
         $this->expectException(AppViewException::class);
@@ -107,7 +108,7 @@ class GuzzleAppViewClientTest extends TestCase
     public function testResolveHandleThrowsWhenDidIsNotAString(): void
     {
         $client = $this->makeClient([
-            new Response(200, [], json_encode(['did' => 123])),
+            new Response(200, [], (string) json_encode(['did' => 123])),
         ]);
 
         $this->expectException(AppViewException::class);

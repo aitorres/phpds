@@ -22,7 +22,9 @@ class InMemoryActorRepository implements ActorRepository
     public function __construct(?SettingsInterface $settings = null, ?array $actors = null)
     {
         if ($actors === null) {
-            $hostname = $settings !== null ? ($settings->get('pds')['hostname'] ?? 'localhost') : 'localhost';
+            /** @var array{hostname: string}|null $pdsSettings */
+            $pdsSettings = $settings?->get('pds');
+            $hostname = $pdsSettings['hostname'] ?? 'localhost';
             $actors = [
                 new Actor(
                     "did:web:alice.{$hostname}",

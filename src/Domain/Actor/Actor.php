@@ -67,6 +67,9 @@ class Actor implements JsonSerializable
         return $this->deleteAfter;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     #[\ReturnTypeWillChange]
     public function jsonSerialize(): array
     {

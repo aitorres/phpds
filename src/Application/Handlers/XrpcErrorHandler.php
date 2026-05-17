@@ -32,7 +32,7 @@ class XrpcErrorHandler extends SlimErrorHandler
             $message = $exception->getMessage();
         }
 
-        $payload = json_encode(
+        $payload = (string) json_encode(
             ['error' => $error, 'message' => $message],
             JSON_PRETTY_PRINT
         );

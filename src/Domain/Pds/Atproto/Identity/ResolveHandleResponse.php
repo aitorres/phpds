@@ -20,6 +20,9 @@ class ResolveHandleResponse implements JsonSerializable
         return $this->did;
     }
 
+    /**
+     * @return array{did: string}
+     */
     #[\ReturnTypeWillChange]
     public function jsonSerialize(): array
     {

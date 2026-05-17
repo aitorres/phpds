@@ -15,7 +15,7 @@ class ResponseEmitter extends SlimResponseEmitter
     public function emit(ResponseInterface $response): void
     {
         // This variable should be set to the allowed host from which your API can be accessed with
-        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        $origin = is_string($_SERVER['HTTP_ORIGIN'] ?? null) ? $_SERVER['HTTP_ORIGIN'] : '';
 
         $allowedHeaders = implode(', ', [
             'X-Requested-With',

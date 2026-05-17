@@ -22,6 +22,7 @@ class DescribeServerAction extends PdsAction
      */
     protected function action(): Response
     {
+        /** @var array{hostname: string, termsOfServiceUrl: ?string, privacyPolicyUrl: ?string, email: ?string, bskyAppViewUrl: ?string} $pdsSettings */
         $pdsSettings = $this->settings->get('pds');
         $hostname = $pdsSettings['hostname'];
 

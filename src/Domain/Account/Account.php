@@ -58,6 +58,9 @@ class Account implements JsonSerializable
         return $this->invitesDisabled;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     #[\ReturnTypeWillChange]
     public function jsonSerialize(): array
     {

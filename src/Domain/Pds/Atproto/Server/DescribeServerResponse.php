@@ -12,6 +12,7 @@ class DescribeServerResponse implements JsonSerializable
 
     private bool $inviteCodeRequired;
 
+    /** @var list<string> */
     private array $availableUserDomains;
 
     private ?string $termsOfServiceUrl;
@@ -22,6 +23,9 @@ class DescribeServerResponse implements JsonSerializable
 
     private ?bool $phoneVerificationRequired;
 
+    /**
+     * @param list<string> $availableUserDomains
+     */
     public function __construct(
         string $did,
         bool $inviteCodeRequired,
@@ -40,6 +44,9 @@ class DescribeServerResponse implements JsonSerializable
         $this->did = $did;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         $json = [

@@ -2,8 +2,12 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$_ENV['PDS_HOSTNAME'] = $_ENV['PDS_HOSTNAME'] ?? 'localhost';
-putenv('PDS_HOSTNAME=' . $_ENV['PDS_HOSTNAME']);
+$hostname = is_string($_ENV['PDS_HOSTNAME'] ?? null) ? $_ENV['PDS_HOSTNAME'] : 'localhost';
+$_ENV['PDS_HOSTNAME'] = $hostname;
+putenv('PDS_HOSTNAME=' . $hostname);
 
-$_ENV['PDS_BSKY_APP_VIEW_URL'] = $_ENV['PDS_BSKY_APP_VIEW_URL'] ?? 'https://api.bsky.app';
-putenv('PDS_BSKY_APP_VIEW_URL=' . $_ENV['PDS_BSKY_APP_VIEW_URL']);
+$appViewUrl = is_string($_ENV['PDS_BSKY_APP_VIEW_URL'] ?? null)
+    ? $_ENV['PDS_BSKY_APP_VIEW_URL']
+    : 'https://api.bsky.app';
+$_ENV['PDS_BSKY_APP_VIEW_URL'] = $appViewUrl;
+putenv('PDS_BSKY_APP_VIEW_URL=' . $appViewUrl);

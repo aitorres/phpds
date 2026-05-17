@@ -22,7 +22,9 @@ class InMemoryAccountRepository implements AccountRepository
     public function __construct(?SettingsInterface $settings = null, ?array $accounts = null)
     {
         if ($accounts === null) {
-            $hostname = $settings !== null ? ($settings->get('pds')['hostname'] ?? 'localhost') : 'localhost';
+            /** @var array{hostname: string}|null $pdsSettings */
+            $pdsSettings = $settings?->get('pds');
+            $hostname = $pdsSettings['hostname'] ?? 'localhost';
             $accounts = [
                 new Account(
                     did: "did:web:alice.{$hostname}",

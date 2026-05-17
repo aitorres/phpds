@@ -69,6 +69,7 @@ class ActorTest extends TestCase
             deleteAfter: null,
         );
 
+        /** @var array<string, mixed> $payload */
         $payload = json_decode((string) json_encode($actor), true);
 
         $this->assertSame('did:web:alice.pds.test', $payload['did']);
