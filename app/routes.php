@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Application\Actions\Pds\Atproto\Identity\ResolveHandleAction;
 use App\Application\Actions\Pds\Atproto\Server\DescribeServerAction;
 use Composer\InstalledVersions;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -44,6 +45,9 @@ ASCII;
     $app->group('/xrpc', function (Group $group) {
         // atproto server
         $group->get('/com.atproto.server.describeServer', DescribeServerAction::class);
+
+        // atproto identity
+        $group->get('/com.atproto.identity.resolveHandle', ResolveHandleAction::class);
 
         // misc
         $group->get('/_health', function (Request $request, Response $response) {

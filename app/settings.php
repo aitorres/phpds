@@ -24,6 +24,7 @@ return function (ContainerBuilder $containerBuilder) {
                 // PDS-specific settings
                 'pds' => [
                     'hostname' => $_ENV['PDS_HOSTNAME'] ?? throw new \RuntimeException('PDS_HOSTNAME is required'),
+                    'bskyAppViewUrl' => $_ENV['PDS_BSKY_APP_VIEW_URL'] ?? throw new \RuntimeException('PDS_BSKY_APP_VIEW_URL is required'),
                     'privacyPolicyUrl' => $_ENV['PDS_PRIVACY_POLICY_URL'] ?? null,
                     'termsOfServiceUrl' => $_ENV['PDS_TERMS_OF_SERVICE_URL'] ?? null,
                     'email' => $_ENV['PDS_CONTACT_EMAIL_ADDRESS'] ?? null,

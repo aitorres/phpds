@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Application\Actions\Pds\XrpcException;
 use App\Application\Handlers\HttpErrorHandler;
 use App\Application\Handlers\ShutdownHandler;
+use App\Application\Handlers\XrpcErrorHandler;
 use App\Application\ResponseEmitter\ResponseEmitter;
 use App\Application\Settings\SettingsInterface;
 use DI\ContainerBuilder;
@@ -82,6 +84,10 @@ $app->addBodyParsingMiddleware();
 // Add Error Middleware
 $errorMiddleware = $app->addErrorMiddleware($displayErrorDetails, $logError, $logErrorDetails);
 $errorMiddleware->setDefaultErrorHandler($errorHandler);
+
+// Render atproto XRPC errors in the {"error": "...", "message": "..."} format
+$xrpcErrorHandler = new XrpcErrorHandler($callableResolver, $responseFactory);
+$errorMiddleware->setErrorHandler(XrpcException::class, $xrpcErrorHandler);
 
 // Run App & Emit Response
 $response = $app->handle($request);
