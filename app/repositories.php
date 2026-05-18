@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 use App\Application\Settings\SettingsInterface;
 use App\Domain\Account\AccountRepository;
+use App\Domain\Account\AppPassword\AppPasswordRepository;
 use App\Domain\Actor\ActorRepository;
 use App\Domain\Pds\Atproto\AppView\AppViewClient;
 use App\Infrastructure\Atproto\AppView\GuzzleAppViewClient;
+use App\Infrastructure\Persistence\Account\AppPassword\InMemoryAppPasswordRepository;
 use App\Infrastructure\Persistence\Account\InMemoryAccountRepository;
 use App\Infrastructure\Persistence\Actor\InMemoryActorRepository;
 use DI\ContainerBuilder;
@@ -19,6 +21,7 @@ return function (ContainerBuilder $containerBuilder) {
     $containerBuilder->addDefinitions([
         ActorRepository::class => autowire(InMemoryActorRepository::class),
         AccountRepository::class => autowire(InMemoryAccountRepository::class),
+        AppPasswordRepository::class      => autowire(InMemoryAppPasswordRepository::class),
         AppViewClient::class => function (ContainerInterface $container): AppViewClient {
             $settings = $container->get(SettingsInterface::class);
             $baseUrl = $settings->get('pds')['bskyAppViewUrl']
