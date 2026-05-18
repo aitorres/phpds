@@ -19,9 +19,11 @@ use function DI\autowire;
 
 return function (ContainerBuilder $containerBuilder) {
     $containerBuilder->addDefinitions([
+        ActorStoreFactory::class => autowire(InMemoryActorStoreFactory::class),
         ActorRepository::class => autowire(InMemoryActorRepository::class),
         AccountRepository::class => autowire(InMemoryAccountRepository::class),
-        AppPasswordRepository::class      => autowire(InMemoryAppPasswordRepository::class),
+        AppPasswordRepository::class => autowire(InMemoryAppPasswordRepository::class),
+        RepoRootRepository::class => autowire(InMemoryRepoRootRepository::class),
         AppViewClient::class => function (ContainerInterface $container): AppViewClient {
             $settings = $container->get(SettingsInterface::class);
             $baseUrl = $settings->get('pds')['bskyAppViewUrl']
