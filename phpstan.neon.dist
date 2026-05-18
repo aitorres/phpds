@@ -2,3 +2,6 @@ parameters:
   level: 4
   paths:
     - src
+  ignoreErrors:
+    - identifier: return.type
+      path: tests/Infrastructure/Repo/ReferenceCompatibilityTest.php

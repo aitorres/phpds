@@ -29,17 +29,17 @@ class InMemoryActorRepository implements ActorRepository
                 new Actor(
                     "did:web:alice.{$hostname}",
                     "alice.{$hostname}",
-                    new \DateTimeImmutable('2024-01-01T00:00:00Z')
+                    new \DateTimeImmutable('2026-01-01T00:00:00Z')
                 ),
                 new Actor(
                     "did:web:bob.{$hostname}",
                     "bob.{$hostname}",
-                    new \DateTimeImmutable('2024-01-02T00:00:00Z')
+                    new \DateTimeImmutable('2026-01-02T00:00:00Z')
                 ),
                 new Actor(
                     'did:plc:carol000000000000000000000',
                     "carol.{$hostname}",
-                    new \DateTimeImmutable('2024-01-03T00:00:00Z')
+                    new \DateTimeImmutable('2026-01-03T00:00:00Z')
                 ),
             ];
         }

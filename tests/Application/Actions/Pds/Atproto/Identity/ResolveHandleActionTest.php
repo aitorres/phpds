@@ -23,7 +23,7 @@ class ResolveHandleActionTest extends TestCase
         $logger = $this->prophesize(LoggerInterface::class)->reveal();
         $settings = new Settings([]);
 
-        $actor = new Actor('did:web:alice.pds.test', 'alice.pds.test', new \DateTimeImmutable('2024-01-01T00:00:00Z'));
+        $actor = new Actor('did:web:alice.pds.test', 'alice.pds.test', new \DateTimeImmutable('2026-01-01T00:00:00Z'));
         $repositoryProphecy = $this->prophesize(ActorRepository::class);
         $repositoryProphecy
             ->findActorByHandle('alice.pds.test')
