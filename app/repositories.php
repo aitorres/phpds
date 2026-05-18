@@ -5,6 +5,9 @@ declare(strict_types=1);
 use App\Application\Settings\SettingsInterface;
 use App\Domain\Account\AccountRepository;
 use App\Domain\Account\AppPassword\AppPasswordRepository;
+use App\Domain\Account\EmailToken\EmailTokenRepository;
+use App\Domain\Account\InviteCode\InviteCodeRepository;
+use App\Domain\Account\RefreshToken\RefreshTokenRepository;
 use App\Domain\Actor\ActorRepository;
 use App\Domain\Pds\Atproto\AppView\AppViewClient;
 use App\Domain\ActorStore\ActorStoreFactory;
@@ -16,6 +19,9 @@ use App\Domain\Repo\RepoRootRepository;
 use App\Domain\Sequencer\SequencerRepository;
 use App\Infrastructure\Atproto\AppView\GuzzleAppViewClient;
 use App\Infrastructure\Persistence\Account\AppPassword\InMemoryAppPasswordRepository;
+use App\Infrastructure\Persistence\Account\EmailToken\InMemoryEmailTokenRepository;
+use App\Infrastructure\Persistence\Account\RefreshToken\InMemoryRefreshTokenRepository;
+use App\Infrastructure\Persistence\Account\InviteCode\InMemoryInviteCodeRepository;
 use App\Infrastructure\Persistence\Account\InMemoryAccountRepository;
 use App\Infrastructure\Persistence\Actor\InMemoryActorRepository;
 use App\Infrastructure\Persistence\ActorStore\InMemoryActorStoreFactory;
@@ -42,6 +48,9 @@ return function (ContainerBuilder $containerBuilder) {
         CarWriter::class => autowire(NativeCarWriter::class),
         CarReader::class => autowire(NativeCarReader::class),
         SequencerRepository::class => autowire(InMemorySequencerRepository::class),
+        InviteCodeRepository::class => autowire(InMemoryInviteCodeRepository::class),
+        RefreshTokenRepository::class => autowire(InMemoryRefreshTokenRepository::class),
+        EmailTokenRepository::class => autowire(InMemoryEmailTokenRepository::class),
         RepoRootRepository::class => autowire(InMemoryRepoRootRepository::class),
         AppViewClient::class => function (ContainerInterface $container): AppViewClient {
             $settings = $container->get(SettingsInterface::class);
