@@ -16,3 +16,9 @@ putenv('PDS_BSKY_APP_VIEW_URL=' . $appViewUrl);
 $dataDir = ':memory:';
 $_ENV['PDS_DATA_DIRECTORY'] = $dataDir;
 putenv('PDS_DATA_DIRECTORY=' . $dataDir);
+
+$adminPassword = is_string($_ENV['PDS_ADMIN_PASSWORD'] ?? null) && $_ENV['PDS_ADMIN_PASSWORD'] !== ''
+    ? $_ENV['PDS_ADMIN_PASSWORD']
+    : 'test-admin-password';
+$_ENV['PDS_ADMIN_PASSWORD'] = $adminPassword;
+putenv('PDS_ADMIN_PASSWORD=' . $adminPassword);

@@ -35,6 +35,7 @@ return function (ContainerBuilder $containerBuilder) {
                     'privacyPolicyUrl' => $_ENV['PDS_PRIVACY_POLICY_URL'] ?? null,
                     'termsOfServiceUrl' => $_ENV['PDS_TERMS_OF_SERVICE_URL'] ?? null,
                     'email' => $_ENV['PDS_CONTACT_EMAIL_ADDRESS'] ?? null,
+                    'adminPassword' => $getRequiredEnv('PDS_ADMIN_PASSWORD'),
                 ],
                 // Persistence (SQLite) settings
                 'database' => (static function () use ($getRequiredEnv): array {

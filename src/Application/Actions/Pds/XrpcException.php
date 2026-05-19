@@ -73,4 +73,9 @@ class XrpcException extends RuntimeException
     {
         return new self($error, $message, StatusCodeInterface::STATUS_BAD_REQUEST);
     }
+
+    public static function authRequired(string $message = 'Authentication required'): self
+    {
+        return new self('AuthenticationRequired', $message, StatusCodeInterface::STATUS_UNAUTHORIZED);
+    }
 }
