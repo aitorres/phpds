@@ -25,4 +25,9 @@ interface AccountRepository
      * @throws AccountNotFoundException
      */
     public function findAccountByEmail(string $email): Account;
+
+    /**
+     * Persist an account.
+     */
+    public function save(Account $account): void;
 }

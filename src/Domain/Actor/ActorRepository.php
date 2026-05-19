@@ -20,4 +20,9 @@ interface ActorRepository
      * @throws ActorNotFoundException
      */
     public function findActorByHandle(string $handle): Actor;
+
+    /**
+     * Persist an actor.
+     */
+    public function save(Actor $actor): void;
 }
