@@ -10,6 +10,7 @@ The following XRPC endpoints are implemented:
 
 - `com.atproto.identity.resolveHandle`
 - `com.atproto.server.describeServer`
+- `com.atproto.sync.getLatestCommit`
 - `com.atproto.sync.listRepos`
 
 ## Installation
