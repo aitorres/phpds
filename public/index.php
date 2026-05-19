@@ -13,30 +13,35 @@ use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../app/constants.php';
 
 // Loading environment variables from .env file, if it exists
 $envPath = __DIR__ . '/../.env';
 if (is_file($envPath)) {
-	$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
-	$dotenv->safeLoad();
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+    $dotenv->safeLoad();
 }
 
 // Instantiate PHP-DI ContainerBuilder
 $containerBuilder = new ContainerBuilder();
 
+// @phpstan-ignore if.alwaysFalse (toggle for production)
 if (false) { // Should be set to true in production
-	$containerBuilder->enableCompilation(__DIR__ . '/../var/cache');
+    $containerBuilder->enableCompilation(__DIR__ . '/../var/cache');
 }
 
 // Set up settings
+/** @var callable(\DI\ContainerBuilder<\DI\Container>): void $settings */
 $settings = require __DIR__ . '/../app/settings.php';
 $settings($containerBuilder);
 
 // Set up dependencies
+/** @var callable(\DI\ContainerBuilder<\DI\Container>): void $dependencies */
 $dependencies = require __DIR__ . '/../app/dependencies.php';
 $dependencies($containerBuilder);
 
 // Set up repositories
+/** @var callable(\DI\ContainerBuilder<\DI\Container>): void $repositories */
 $repositories = require __DIR__ . '/../app/repositories.php';
 $repositories($containerBuilder);
 
@@ -49,18 +54,23 @@ $app = AppFactory::create();
 $callableResolver = $app->getCallableResolver();
 
 // Register middleware
+/** @var callable(\Slim\App<\Psr\Container\ContainerInterface|null>): void $middleware */
 $middleware = require __DIR__ . '/../app/middleware.php';
 $middleware($app);
 
 // Register routes
+/** @var callable(\Slim\App<\Psr\Container\ContainerInterface|null>): void $routes */
 $routes = require __DIR__ . '/../app/routes.php';
 $routes($app);
 
 /** @var SettingsInterface $settings */
 $settings = $container->get(SettingsInterface::class);
 
+/** @var bool $displayErrorDetails */
 $displayErrorDetails = $settings->get('displayErrorDetails');
+/** @var bool $logError */
 $logError = $settings->get('logError');
+/** @var bool $logErrorDetails */
 $logErrorDetails = $settings->get('logErrorDetails');
 
 // Create Request object from globals

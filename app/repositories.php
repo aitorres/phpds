@@ -26,23 +26,27 @@ use App\Domain\Repo\DagCborEncoder;
 use App\Domain\Repo\RepoRootRepository;
 use App\Domain\Sequencer\SequencerRepository;
 use App\Infrastructure\Atproto\AppView\GuzzleAppViewClient;
-use App\Infrastructure\Persistence\Account\AppPassword\InMemoryAppPasswordRepository;
-use App\Infrastructure\Persistence\Account\EmailToken\InMemoryEmailTokenRepository;
-use App\Infrastructure\Persistence\Account\InMemoryAccountRepository;
-use App\Infrastructure\Persistence\Account\InviteCode\InMemoryInviteCodeRepository;
-use App\Infrastructure\Persistence\Account\RefreshToken\InMemoryRefreshTokenRepository;
-use App\Infrastructure\Persistence\Actor\InMemoryActorRepository;
-use App\Infrastructure\Persistence\ActorStore\InMemoryActorStoreFactory;
-use App\Infrastructure\Persistence\Did\InMemoryDidCacheRepository;
-use App\Infrastructure\Persistence\Lexicon\InMemoryLexiconRepository;
-use App\Infrastructure\Persistence\OAuth\InMemoryAccountDeviceRepository;
-use App\Infrastructure\Persistence\OAuth\InMemoryAuthorizationRequestRepository;
-use App\Infrastructure\Persistence\OAuth\InMemoryAuthorizedClientRepository;
-use App\Infrastructure\Persistence\OAuth\InMemoryDeviceRepository;
-use App\Infrastructure\Persistence\OAuth\InMemoryOAuthTokenRepository;
-use App\Infrastructure\Persistence\OAuth\InMemoryUsedRefreshTokenRepository;
-use App\Infrastructure\Persistence\Repo\InMemoryRepoRootRepository;
-use App\Infrastructure\Persistence\Sequencer\InMemorySequencerRepository;
+use App\Infrastructure\Database\Database;
+use App\Infrastructure\Database\Schema\AccountSchema;
+use App\Infrastructure\Database\Schema\DidCacheSchema;
+use App\Infrastructure\Database\Schema\SequencerSchema;
+use App\Infrastructure\Persistence\Account\AppPassword\SqliteAppPasswordRepository;
+use App\Infrastructure\Persistence\Account\EmailToken\SqliteEmailTokenRepository;
+use App\Infrastructure\Persistence\Account\InviteCode\SqliteInviteCodeRepository;
+use App\Infrastructure\Persistence\Account\RefreshToken\SqliteRefreshTokenRepository;
+use App\Infrastructure\Persistence\Account\SqliteAccountRepository;
+use App\Infrastructure\Persistence\Actor\SqliteActorRepository;
+use App\Infrastructure\Persistence\ActorStore\SqliteActorStoreFactory;
+use App\Infrastructure\Persistence\Did\SqliteDidCacheRepository;
+use App\Infrastructure\Persistence\Lexicon\SqliteLexiconRepository;
+use App\Infrastructure\Persistence\OAuth\SqliteAccountDeviceRepository;
+use App\Infrastructure\Persistence\OAuth\SqliteAuthorizationRequestRepository;
+use App\Infrastructure\Persistence\OAuth\SqliteAuthorizedClientRepository;
+use App\Infrastructure\Persistence\OAuth\SqliteDeviceRepository;
+use App\Infrastructure\Persistence\OAuth\SqliteOAuthTokenRepository;
+use App\Infrastructure\Persistence\OAuth\SqliteUsedRefreshTokenRepository;
+use App\Infrastructure\Persistence\Repo\SqliteRepoRootRepository;
+use App\Infrastructure\Persistence\Sequencer\SqliteSequencerRepository;
 use App\Infrastructure\Repo\NativeCarReader;
 use App\Infrastructure\Repo\NativeCarWriter;
 use App\Infrastructure\Repo\NativeDagCborDecoder;
@@ -53,16 +57,60 @@ use Psr\Container\ContainerInterface;
 
 use function DI\autowire;
 
-return function (ContainerBuilder $containerBuilder) {
+require_once __DIR__ . '/constants.php';
+
+/**
+ * @param ContainerInterface $c
+ * @return array{accountDb:string,sequencerDb:string,didCacheDb:string,actorStoreDir:string,blobstoreDir:string}
+ */
+$dbSettings = static function (ContainerInterface $c): array {
+    $settingsService = $c->get(SettingsInterface::class);
+    assert($settingsService instanceof SettingsInterface);
+    /** @var array{accountDb:string,sequencerDb:string,didCacheDb:string,actorStoreDir:string,blobstoreDir:string}|null $settings */
+    $settings = $settingsService->get('database');
+    if (!is_array($settings)) {
+        throw new \RuntimeException('Database settings are missing.');
+    }
+    return $settings;
+};
+
+/**
+ * @param ContainerInterface $c
+ * @param string $key
+ * @return Database
+ */
+$getDb = static function (ContainerInterface $c, string $key): Database {
+    $db = $c->get($key);
+    assert($db instanceof Database);
+    return $db;
+};
+
+return function (ContainerBuilder $containerBuilder) use ($dbSettings, $getDb) {
     $containerBuilder->addDefinitions([
-        AccountDeviceRepository::class => autowire(InMemoryAccountDeviceRepository::class),
-        AccountRepository::class => autowire(InMemoryAccountRepository::class),
-        ActorRepository::class => autowire(InMemoryActorRepository::class),
-        ActorStoreFactory::class => autowire(InMemoryActorStoreFactory::class),
-        AppPasswordRepository::class => autowire(InMemoryAppPasswordRepository::class),
+        // Database singletons
+        DB_ACCOUNT => function (ContainerInterface $c) use ($dbSettings): Database {
+            $db = new Database($dbSettings($c)['accountDb']);
+            AccountSchema::apply($db);
+            return $db;
+        },
+        DB_SEQUENCER => function (ContainerInterface $c) use ($dbSettings): Database {
+            $db = new Database($dbSettings($c)['sequencerDb']);
+            SequencerSchema::apply($db);
+            return $db;
+        },
+        DB_DID_CACHE => function (ContainerInterface $c) use ($dbSettings): Database {
+            $db = new Database($dbSettings($c)['didCacheDb']);
+            DidCacheSchema::apply($db);
+            return $db;
+        },
+
+        // Clients and services
         AppViewClient::class => function (ContainerInterface $container): AppViewClient {
             $settings = $container->get(SettingsInterface::class);
-            $baseUrl = $settings->get('pds')['bskyAppViewUrl']
+            assert($settings instanceof SettingsInterface);
+            /** @var array{bskyAppViewUrl?: string} $pdsSettings */
+            $pdsSettings = $settings->get('pds');
+            $baseUrl = $pdsSettings['bskyAppViewUrl']
                 ?? throw new \RuntimeException('PDS_BSKY_APP_VIEW_URL is required to use the AppView client.');
 
             $httpClient = new GuzzleClient([
@@ -73,21 +121,48 @@ return function (ContainerBuilder $containerBuilder) {
 
             return new GuzzleAppViewClient($httpClient);
         },
-        AuthorizationRequestRepository::class => autowire(InMemoryAuthorizationRequestRepository::class),
-        AuthorizedClientRepository::class => autowire(InMemoryAuthorizedClientRepository::class),
-        CarReader::class => autowire(NativeCarReader::class),
-        CarWriter::class => autowire(NativeCarWriter::class),
-        DagCborDecoder::class => autowire(NativeDagCborDecoder::class),
-        DagCborEncoder::class => autowire(NativeDagCborEncoder::class),
-        DeviceRepository::class => autowire(InMemoryDeviceRepository::class),
-        DidCacheRepository::class => autowire(InMemoryDidCacheRepository::class),
-        EmailTokenRepository::class => autowire(InMemoryEmailTokenRepository::class),
-        InviteCodeRepository::class => autowire(InMemoryInviteCodeRepository::class),
-        LexiconRepository::class => autowire(InMemoryLexiconRepository::class),
-        OAuthTokenRepository::class => autowire(InMemoryOAuthTokenRepository::class),
-        RefreshTokenRepository::class => autowire(InMemoryRefreshTokenRepository::class),
-        RepoRootRepository::class => autowire(InMemoryRepoRootRepository::class),
-        SequencerRepository::class => autowire(InMemorySequencerRepository::class),
-        UsedRefreshTokenRepository::class => autowire(InMemoryUsedRefreshTokenRepository::class),
+        AccountRepository::class => fn (ContainerInterface $c): SqliteAccountRepository =>
+            new SqliteAccountRepository($getDb($c, DB_ACCOUNT)),
+        AccountDeviceRepository::class => fn (ContainerInterface $c): SqliteAccountDeviceRepository =>
+            new SqliteAccountDeviceRepository($getDb($c, DB_ACCOUNT)),
+        ActorRepository::class => fn (ContainerInterface $c): SqliteActorRepository =>
+            new SqliteActorRepository($getDb($c, DB_ACCOUNT)),
+        ActorStoreFactory::class => function (ContainerInterface $c) use ($dbSettings): SqliteActorStoreFactory {
+            $settings = $dbSettings($c);
+            return new SqliteActorStoreFactory(
+                actorsDirectory: $settings['actorStoreDir'],
+                blobsDirectory: $settings['blobstoreDir'],
+            );
+        },
+        AuthorizationRequestRepository::class => fn (ContainerInterface $c): SqliteAuthorizationRequestRepository =>
+            new SqliteAuthorizationRequestRepository($getDb($c, DB_ACCOUNT)),
+        AuthorizedClientRepository::class => fn (ContainerInterface $c): SqliteAuthorizedClientRepository =>
+            new SqliteAuthorizedClientRepository($getDb($c, DB_ACCOUNT)),
+        CarReader::class       => autowire(NativeCarReader::class),
+        CarWriter::class       => autowire(NativeCarWriter::class),
+        DagCborDecoder::class  => autowire(NativeDagCborDecoder::class),
+        DagCborEncoder::class  => autowire(NativeDagCborEncoder::class),
+        DeviceRepository::class => fn (ContainerInterface $c): SqliteDeviceRepository =>
+            new SqliteDeviceRepository($getDb($c, DB_ACCOUNT)),
+        DidCacheRepository::class => fn (ContainerInterface $c): SqliteDidCacheRepository =>
+            new SqliteDidCacheRepository($getDb($c, DB_DID_CACHE)),
+        AppPasswordRepository::class => fn (ContainerInterface $c): SqliteAppPasswordRepository =>
+            new SqliteAppPasswordRepository($getDb($c, DB_ACCOUNT)),
+        EmailTokenRepository::class => fn (ContainerInterface $c): SqliteEmailTokenRepository =>
+            new SqliteEmailTokenRepository($getDb($c, DB_ACCOUNT)),
+        InviteCodeRepository::class => fn (ContainerInterface $c): SqliteInviteCodeRepository =>
+            new SqliteInviteCodeRepository($getDb($c, DB_ACCOUNT)),
+        LexiconRepository::class => fn (ContainerInterface $c): SqliteLexiconRepository =>
+            new SqliteLexiconRepository($getDb($c, DB_ACCOUNT)),
+        OAuthTokenRepository::class => fn (ContainerInterface $c): SqliteOAuthTokenRepository =>
+            new SqliteOAuthTokenRepository($getDb($c, DB_ACCOUNT)),
+        RefreshTokenRepository::class => fn (ContainerInterface $c): SqliteRefreshTokenRepository =>
+            new SqliteRefreshTokenRepository($getDb($c, DB_ACCOUNT)),
+        RepoRootRepository::class => fn (ContainerInterface $c): SqliteRepoRootRepository =>
+            new SqliteRepoRootRepository($getDb($c, DB_ACCOUNT)),
+        SequencerRepository::class => fn (ContainerInterface $c): SqliteSequencerRepository =>
+            new SqliteSequencerRepository($getDb($c, DB_SEQUENCER)),
+        UsedRefreshTokenRepository::class => fn (ContainerInterface $c): SqliteUsedRefreshTokenRepository =>
+            new SqliteUsedRefreshTokenRepository($getDb($c, DB_ACCOUNT)),
     ]);
 };
