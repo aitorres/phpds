@@ -42,6 +42,34 @@ class SqliteActorRepository implements ActorRepository
         return $this->hydrate($row);
     }
 
+    /**
+     * @return Actor[]
+     */
+    public function findPage(?string $cursor, int $limit): array
+    {
+        if ($limit <= 0) {
+            return [];
+        }
+
+        if ($cursor === null || $cursor === '') {
+            $rows = $this->db->fetchAll(
+                'SELECT * FROM actor ORDER BY did ASC LIMIT ?',
+                [$limit]
+            );
+        } else {
+            $rows = $this->db->fetchAll(
+                'SELECT * FROM actor WHERE did > ? ORDER BY did ASC LIMIT ?',
+                [$cursor, $limit]
+            );
+        }
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = $this->hydrate($row);
+        }
+        return $result;
+    }
+
     public function findActorByHandle(string $handle): Actor
     {
         $handle = strtolower(trim($handle));

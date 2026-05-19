@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Application\Actions\Pds\Atproto\Identity\ResolveHandleAction;
 use App\Application\Actions\Pds\Atproto\Server\DescribeServerAction;
+use App\Application\Actions\Pds\Atproto\Sync\ListReposAction;
 use Composer\InstalledVersions;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -32,8 +33,16 @@ ASCII;
         $response->getBody()->write("<p>this is phpds, an atproto personal data server implemented in PHP!</p>");
         $response->getBody()->write("<p>useful routes are under /xrpc/</p>");
         $response->getBody()->write("<p>please don't use this in prod!</p>");
-        $response->getBody()->write("<p>with love, <a href='https://bsky.app/profile/andresitorresm.com'>@andresitorresm.com</a></p>");
-        $response->getBody()->write("<p>source code: <a href='https://github.com/aitorres/phpds'>GitHub</a> and <a href='https://tangled.sh/andresitorresm.com/phpds'>tangled.sh</a></p>");
+        $response
+            ->getBody()
+            ->write("<p>with love, <a href='https://bsky.app/profile/andresitorresm.com'>@andresitorresm.com</a></p>");
+        $response
+            ->getBody()
+            ->write(
+                "<p>source code: "
+                . "<a href='https://github.com/aitorres/phpds'>GitHub</a> and "
+                . "<a href='https://tangled.sh/andresitorresm.com/phpds'>tangled.sh</a></p>"
+            );
         return $response;
     });
 
@@ -54,10 +63,13 @@ ASCII;
         // atproto identity
         $group->get('/com.atproto.identity.resolveHandle', ResolveHandleAction::class);
 
+        // atproto sync
+        $group->get('/com.atproto.sync.listRepos', ListReposAction::class);
+
         // misc
         $group->get('/_health', function (Request $request, Response $response) {
-            $version = InstalledVersions::getRootPackage()['pretty_version'] ?? 'unknown';
-            $response->getBody()->write(json_encode(['version' => $version]));
+            $version = InstalledVersions::getRootPackage()['pretty_version'];
+            $response->getBody()->write((string) json_encode(['version' => $version]));
 
             return $response->withHeader('Content-Type', 'application/json');
         });

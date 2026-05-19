@@ -83,4 +83,59 @@ class SqliteActorRepositoryTest extends TestCase
         $this->expectException(ActorNotFoundException::class);
         $repo->findActorByHandle('headless.pds.test');
     }
+
+    public function testFindPageReturnsEmptyArrayWhenNoActors(): void
+    {
+        $repo = $this->newRepo();
+        $this->assertSame([], $repo->findPage(null, 10));
+    }
+
+    public function testFindPageReturnsActorsOrderedByDid(): void
+    {
+        $repo = $this->newRepo();
+        $repo->save($this->makeActor('did:web:bob.pds.test', 'bob.pds.test'));
+        $repo->save($this->makeActor('did:web:alice.pds.test', 'alice.pds.test'));
+        $repo->save($this->makeActor('did:web:carol.pds.test', 'carol.pds.test'));
+
+        $page = $repo->findPage(null, 10);
+        $this->assertCount(3, $page);
+        $this->assertSame('did:web:alice.pds.test', $page[0]->getDid());
+        $this->assertSame('did:web:bob.pds.test', $page[1]->getDid());
+        $this->assertSame('did:web:carol.pds.test', $page[2]->getDid());
+    }
+
+    public function testFindPageRespectsLimit(): void
+    {
+        $repo = $this->newRepo();
+        $repo->save($this->makeActor('did:web:alice.pds.test', 'alice.pds.test'));
+        $repo->save($this->makeActor('did:web:bob.pds.test', 'bob.pds.test'));
+        $repo->save($this->makeActor('did:web:carol.pds.test', 'carol.pds.test'));
+
+        $page = $repo->findPage(null, 2);
+        $this->assertCount(2, $page);
+        $this->assertSame('did:web:alice.pds.test', $page[0]->getDid());
+        $this->assertSame('did:web:bob.pds.test', $page[1]->getDid());
+    }
+
+    public function testFindPageStartsStrictlyAfterCursor(): void
+    {
+        $repo = $this->newRepo();
+        $repo->save($this->makeActor('did:web:alice.pds.test', 'alice.pds.test'));
+        $repo->save($this->makeActor('did:web:bob.pds.test', 'bob.pds.test'));
+        $repo->save($this->makeActor('did:web:carol.pds.test', 'carol.pds.test'));
+
+        $page = $repo->findPage('did:web:alice.pds.test', 10);
+        $this->assertCount(2, $page);
+        $this->assertSame('did:web:bob.pds.test', $page[0]->getDid());
+        $this->assertSame('did:web:carol.pds.test', $page[1]->getDid());
+    }
+
+    public function testFindPageReturnsEmptyForNonPositiveLimit(): void
+    {
+        $repo = $this->newRepo();
+        $repo->save($this->makeActor('did:web:alice.pds.test', 'alice.pds.test'));
+
+        $this->assertSame([], $repo->findPage(null, 0));
+        $this->assertSame([], $repo->findPage(null, -5));
+    }
 }

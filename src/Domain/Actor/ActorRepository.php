@@ -12,6 +12,15 @@ interface ActorRepository
     public function findAll(): array;
 
     /**
+     * Return a page of actors ordered by DID ascending, starting strictly
+     * after $cursor (exclusive). When $cursor is null, starts from the
+     * beginning.
+     *
+     * @return Actor[]
+     */
+    public function findPage(?string $cursor, int $limit): array;
+
+    /**
      * @throws ActorNotFoundException
      */
     public function findActorByDid(string $did): Actor;

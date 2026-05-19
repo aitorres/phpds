@@ -8,8 +8,9 @@ This is a work-in-progress project done for fun! Don't expect it to be productio
 
 The following XRPC endpoints are implemented:
 
-- `com.atproto.server.describeServer`
 - `com.atproto.identity.resolveHandle`
+- `com.atproto.server.describeServer`
+- `com.atproto.sync.listRepos`
 
 ## Installation
 
