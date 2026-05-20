@@ -60,6 +60,83 @@ class SqliteInviteCodeRepository implements InviteCodeRepository
         return $result;
     }
 
+    /**
+     * @return InviteCode[]
+     */
+    public function findPageByRecent(?string $cursorCreatedAt, ?string $cursorCode, int $limit): array
+    {
+        if ($limit < 1) {
+            return [];
+        }
+
+        $sql = 'SELECT * FROM invite_code';
+        $params = [];
+
+        if ($cursorCreatedAt !== null && $cursorCode !== null) {
+            $sql .= ' WHERE ('
+                . 'created_at < :cursor_created_at OR '
+                . '(created_at = :cursor_created_at_exact AND code < :cursor_code))';
+            $params['cursor_created_at'] = $cursorCreatedAt;
+            $params['cursor_created_at_exact'] = $cursorCreatedAt;
+            $params['cursor_code'] = $cursorCode;
+        }
+
+        $sql .= ' ORDER BY created_at DESC, code DESC LIMIT :limit';
+        $params['limit'] = $limit;
+
+        $rows = $this->db->fetchAll($sql, $params);
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = $this->hydrateCode($row);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return InviteCode[]
+     */
+    public function findPageByUsage(?int $cursorUses, ?string $cursorCode, int $limit): array
+    {
+        if ($limit < 1) {
+            return [];
+        }
+
+        $sql = 'SELECT * FROM (
+            SELECT
+                invite_code.*,
+                (SELECT COUNT(*) FROM invite_code_use WHERE invite_code_use.code = invite_code.code) AS use_count
+            FROM invite_code
+        ) AS invite_codes';
+        $params = [];
+
+        if ($cursorUses !== null && $cursorCode !== null) {
+            $sql .= ' WHERE (
+                CAST(use_count AS INTEGER) < CAST(:cursor_uses AS INTEGER)
+                OR (
+                    CAST(use_count AS INTEGER) = CAST(:cursor_uses_exact AS INTEGER)
+                    AND code < :cursor_code
+                )
+            )';
+            $params['cursor_uses'] = $cursorUses;
+            $params['cursor_uses_exact'] = $cursorUses;
+            $params['cursor_code'] = $cursorCode;
+        }
+
+        $sql .= ' ORDER BY CAST(use_count AS INTEGER) DESC, code DESC LIMIT :limit';
+        $params['limit'] = $limit;
+
+        $rows = $this->db->fetchAll($sql, $params);
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = $this->hydrateCode($row);
+        }
+
+        return $result;
+    }
+
     public function save(InviteCode $inviteCode): void
     {
         $this->db->execute(
@@ -102,14 +179,32 @@ class SqliteInviteCodeRepository implements InviteCodeRepository
      */
     public function findUsesForCode(string $code): array
     {
+        return $this->findUsesForCodes([$code])[$code] ?? [];
+    }
+
+    /**
+     * @param list<string> $codes
+     * @return array<string, list<InviteCodeUse>>
+     */
+    public function findUsesForCodes(array $codes): array
+    {
+        if ($codes === []) {
+            return [];
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($codes), '?'));
         $rows = $this->db->fetchAll(
-            'SELECT * FROM invite_code_use WHERE code = ? ORDER BY used_at',
-            [$code]
+            sprintf(
+                'SELECT * FROM invite_code_use WHERE code IN (%s) ORDER BY used_at DESC',
+                $placeholders
+            ),
+            $codes
         );
 
         $result = [];
         foreach ($rows as $row) {
-            $result[] = $this->hydrateUse($row);
+            $use = $this->hydrateUse($row);
+            $result[$use->getCode()][] = $use;
         }
         return $result;
     }

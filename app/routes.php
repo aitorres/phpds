@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Application\Actions\Pds\Atproto\Admin\GetInviteCodesAction;
 use App\Application\Actions\Pds\Atproto\Identity\ResolveHandleAction;
 use App\Application\Actions\Pds\Atproto\Server\CreateInviteCodeAction;
 use App\Application\Actions\Pds\Atproto\Server\DescribeServerAction;
@@ -60,6 +61,10 @@ ASCII;
     });
 
     $app->group('/xrpc', function (Group $group) {
+        // atproto admin
+        $group->get('/com.atproto.admin.getInviteCodes', GetInviteCodesAction::class)
+            ->add(AdminAuthMiddleware::class);
+
         // atproto server
         $group->post('/com.atproto.server.createInviteCode', CreateInviteCodeAction::class)
             ->add(AdminAuthMiddleware::class);
