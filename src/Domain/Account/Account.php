@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Account;
 
+use App\Domain\Common\StringNormalizer;
 use DateTimeImmutable;
 use JsonSerializable;
 
@@ -27,7 +28,7 @@ class Account implements JsonSerializable
         bool $invitesDisabled = false
     ) {
         $this->did = $did;
-        $this->email = strtolower(trim($email));
+        $this->email = StringNormalizer::normalizeEmail($email);
         $this->passwordScrypt = $passwordScrypt;
         $this->emailConfirmedAt = $emailConfirmedAt;
         $this->invitesDisabled = $invitesDisabled;

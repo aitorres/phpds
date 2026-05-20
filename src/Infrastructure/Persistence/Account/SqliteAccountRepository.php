@@ -7,6 +7,7 @@ namespace App\Infrastructure\Persistence\Account;
 use App\Domain\Account\Account;
 use App\Domain\Account\AccountNotFoundException;
 use App\Domain\Account\AccountRepository;
+use App\Domain\Common\StringNormalizer;
 use App\Infrastructure\Database\Database;
 use App\Infrastructure\Database\Row;
 use DateTimeImmutable;
@@ -33,7 +34,7 @@ class SqliteAccountRepository implements AccountRepository
 
     public function findAccountByHandle(string $handle): Account
     {
-        $handle = strtolower(trim($handle));
+        $handle = StringNormalizer::normalizeHandle($handle) ?? '';
         if ($handle === '') {
             throw new AccountNotFoundException();
         }
@@ -63,7 +64,7 @@ class SqliteAccountRepository implements AccountRepository
 
     public function findAccountByEmail(string $email): Account
     {
-        $email = strtolower(trim($email));
+        $email = StringNormalizer::normalizeEmail($email);
         if ($email === '') {
             throw new AccountNotFoundException();
         }

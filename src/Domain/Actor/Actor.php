@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Actor;
 
+use App\Domain\Common\StringNormalizer;
 use DateTimeImmutable;
 use JsonSerializable;
 
@@ -30,7 +31,7 @@ class Actor implements JsonSerializable
         ?DateTimeImmutable $deleteAfter = null
     ) {
         $this->did = $did;
-        $this->handle = $handle === null ? null : strtolower(trim($handle));
+        $this->handle = StringNormalizer::normalizeHandle($handle);
         $this->createdAt = $createdAt;
         $this->takedownRef = $takedownRef;
         $this->deactivatedAt = $deactivatedAt;

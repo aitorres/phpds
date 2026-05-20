@@ -7,6 +7,7 @@ namespace App\Infrastructure\Persistence\Actor;
 use App\Domain\Actor\Actor;
 use App\Domain\Actor\ActorNotFoundException;
 use App\Domain\Actor\ActorRepository;
+use App\Domain\Common\StringNormalizer;
 use App\Infrastructure\Database\Database;
 use App\Infrastructure\Database\Row;
 use DateTimeImmutable;
@@ -72,7 +73,7 @@ class SqliteActorRepository implements ActorRepository
 
     public function findActorByHandle(string $handle): Actor
     {
-        $handle = strtolower(trim($handle));
+        $handle = StringNormalizer::normalizeHandle($handle) ?? '';
         if ($handle === '') {
             throw new ActorNotFoundException();
         }
