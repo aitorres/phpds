@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Repo;
 
+use App\Domain\Common\Base32;
 use InvalidArgumentException;
 
 /**
@@ -21,8 +22,6 @@ use InvalidArgumentException;
  */
 final class CidUtil
 {
-    private const ALPHABET = 'abcdefghijklmnopqrstuvwxyz234567';
-
     /** CIDv1 / dag-cbor / sha2-256 prefix (4 bytes). */
     private const CID_PREFIX = "\x01\x71\x12\x20";
 
@@ -34,7 +33,7 @@ final class CidUtil
         $hash   = hash('sha256', $cborBytes, true);
         $raw    = self::CID_PREFIX . $hash;
 
-        return 'b' . self::base32Lower($raw);
+        return 'b' . Base32::encode($raw);
     }
 
     /**
@@ -92,7 +91,7 @@ final class CidUtil
             );
         }
 
-        return self::base32LowerDecode(substr($cid, 1));
+        return Base32::decode(substr($cid, 1));
     }
 
     /**
@@ -100,74 +99,6 @@ final class CidUtil
      */
     public static function fromRawBytes(string $rawBytes): string
     {
-        return 'b' . self::base32Lower($rawBytes);
-    }
-
-    /**
-     * Calculates the base32 lowercase encoding of the given bytes, without padding.
-     */
-    private static function base32Lower(string $bytes): string
-    {
-        $result = '';
-        $bits   = 0;
-        $value  = 0;
-        $len    = strlen($bytes);
-
-        for ($i = 0; $i < $len; $i++) {
-            $value = ($value << 8) | ord($bytes[$i]);
-            $bits += 8;
-
-            while ($bits >= 5) {
-                $bits  -= 5;
-                $result .= self::ALPHABET[($value >> $bits) & 0x1f];
-            }
-        }
-
-        if ($bits > 0) {
-            $result .= self::ALPHABET[($value << (5 - $bits)) & 0x1f];
-        }
-
-        return $result;
-    }
-
-    /**
-     * Decodes a base32 lowercase string into bytes.
-     *
-     * @throws InvalidArgumentException for invalid characters
-     */
-    private static function base32LowerDecode(string $encoded): string
-    {
-        /** @var array<string, int>|null $table */
-        static $table = null;
-
-        if ($table === null) {
-            $table = [];
-            for ($i = 0; $i < 32; $i++) {
-                $table[self::ALPHABET[$i]] = $i;
-            }
-        }
-
-        $result = '';
-        $bits   = 0;
-        $value  = 0;
-        $len    = strlen($encoded);
-
-        for ($i = 0; $i < $len; $i++) {
-            $c = $encoded[$i];
-
-            if (!isset($table[$c])) {
-                throw new InvalidArgumentException("Invalid base32 character: '{$c}'");
-            }
-
-            $value = ($value << 5) | $table[$c];
-            $bits += 5;
-
-            if ($bits >= 8) {
-                $bits  -= 8;
-                $result .= chr(($value >> $bits) & 0xff);
-            }
-        }
-
-        return $result;
+        return 'b' . Base32::encode($rawBytes);
     }
 }

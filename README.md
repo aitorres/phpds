@@ -9,6 +9,7 @@ This is a work-in-progress project done for fun! Don't expect it to be productio
 The following XRPC endpoints are implemented:
 
 - `com.atproto.identity.resolveHandle`
+- `com.atproto.server.createInviteCode`
 - `com.atproto.server.describeServer`
 - `com.atproto.sync.getLatestCommit`
 - `com.atproto.sync.listRepos`

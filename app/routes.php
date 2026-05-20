@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 use App\Application\Actions\Pds\Atproto\Identity\ResolveHandleAction;
+use App\Application\Actions\Pds\Atproto\Server\CreateInviteCodeAction;
 use App\Application\Actions\Pds\Atproto\Server\DescribeServerAction;
 use App\Application\Actions\Pds\Atproto\Sync\GetLatestCommitAction;
 use App\Application\Actions\Pds\Atproto\Sync\ListReposAction;
+use App\Application\Middleware\AdminAuthMiddleware;
 use Composer\InstalledVersions;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -59,6 +61,8 @@ ASCII;
 
     $app->group('/xrpc', function (Group $group) {
         // atproto server
+        $group->post('/com.atproto.server.createInviteCode', CreateInviteCodeAction::class)
+            ->add(AdminAuthMiddleware::class);
         $group->get('/com.atproto.server.describeServer', DescribeServerAction::class);
 
         // atproto identity

@@ -13,7 +13,6 @@ use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../app/constants.php';
 
 // Loading environment variables from .env file, if it exists
 $envPath = __DIR__ . '/../.env';
