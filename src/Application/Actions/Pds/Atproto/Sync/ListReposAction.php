@@ -59,7 +59,7 @@ class ListReposAction extends PdsAction
                 continue;
             }
 
-            $status = $this->deriveStatus($actor);
+            $status = $actor->getRepoStatus();
             $repos[] = new RepoView(
                 did: $actor->getDid(),
                 head: $root->getCid(),
@@ -123,25 +123,5 @@ class ListReposAction extends PdsAction
 
         $cursor = trim($raw);
         return $cursor === '' ? null : $cursor;
-    }
-
-    /**
-     * Derive the lex `status` for an actor's repo view.
-     *
-     * Returns null when the repo is active, and otherwise
-     * returns a string indicating a non-active repo status
-     * (e.g. "takendown" or "deactivated").
-     */
-    private function deriveStatus(\App\Domain\Actor\Actor $actor): ?string
-    {
-        if ($actor->getTakedownRef() !== null) {
-            return RepoView::STATUS_TAKENDOWN;
-        }
-
-        if ($actor->getDeactivatedAt() !== null) {
-            return RepoView::STATUS_DEACTIVATED;
-        }
-
-        return null;
     }
 }

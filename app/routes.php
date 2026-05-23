@@ -7,6 +7,7 @@ use App\Application\Actions\Pds\Atproto\Identity\ResolveHandleAction;
 use App\Application\Actions\Pds\Atproto\Server\CreateInviteCodeAction;
 use App\Application\Actions\Pds\Atproto\Server\DescribeServerAction;
 use App\Application\Actions\Pds\Atproto\Sync\GetLatestCommitAction;
+use App\Application\Actions\Pds\Atproto\Sync\GetRepoStatusAction;
 use App\Application\Actions\Pds\Atproto\Sync\ListReposAction;
 use App\Application\Middleware\AdminAuthMiddleware;
 use Composer\InstalledVersions;
@@ -76,6 +77,7 @@ ASCII;
         // atproto sync
         $group->get('/com.atproto.sync.listRepos', ListReposAction::class);
         $group->get('/com.atproto.sync.getLatestCommit', GetLatestCommitAction::class);
+        $group->get('/com.atproto.sync.getRepoStatus', GetRepoStatusAction::class);
 
         // misc
         $group->get('/_health', function (Request $request, Response $response) {

@@ -11,14 +11,13 @@ use App\Domain\Actor\ActorNotFoundException;
 use App\Domain\Actor\ActorRepository;
 use App\Domain\ActorStore\ActorStoreFactory;
 use App\Domain\Did\Did;
-use App\Domain\Pds\Atproto\Sync\GetLatestCommitResponse;
-use App\Domain\Pds\Atproto\Sync\RepoView;
+use App\Domain\Pds\Atproto\Sync\GetRepoStatusResponse;
 use App\Domain\Repo\RepoRootNotFoundException;
 use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
 
-class GetLatestCommitAction extends PdsAction
+class GetRepoStatusAction extends PdsAction
 {
     private ActorRepository $actorRepository;
 
@@ -30,7 +29,7 @@ class GetLatestCommitAction extends PdsAction
         ActorRepository $actorRepository,
         ActorStoreFactory $actorStoreFactory
     ) {
-        parent::__construct($logger, $settings, 'com.atproto.sync.getLatestCommit');
+        parent::__construct($logger, $settings, 'com.atproto.sync.getRepoStatus');
         $this->actorRepository = $actorRepository;
         $this->actorStoreFactory = $actorStoreFactory;
     }
@@ -55,36 +54,32 @@ class GetLatestCommitAction extends PdsAction
         try {
             $actor = $this->actorRepository->findActorByDid($did);
         } catch (ActorNotFoundException $e) {
-            throw $this->namedError('RepoNotFound', sprintf('Could not find repo for DID: %s', $did));
+            throw new XrpcException(
+                'RepoNotFound',
+                sprintf('Could not find repo for DID: %s', $did),
+                StatusCodeInterface::STATUS_BAD_REQUEST
+            );
         }
 
         $status = $actor->getRepoStatus();
-        if ($status === RepoView::STATUS_TAKENDOWN) {
-            throw $this->namedError('RepoTakendown', sprintf('Repo has been taken down: %s', $did));
+        $active = $status === null;
+
+        $rev = null;
+        if ($active) {
+            try {
+                $root = $this->actorStoreFactory->get($did)->getRepoRoot()->findByDid($did);
+                $rev = $root->getRev();
+            } catch (RepoRootNotFoundException $e) {
+                // active actor without an initialised repo
+                $rev = null;
+            }
         }
 
-        if ($status === RepoView::STATUS_DEACTIVATED) {
-            throw $this->namedError('RepoDeactivated', sprintf('Repo has been deactivated: %s', $did));
-        }
-
-        try {
-            $root = $this->actorStoreFactory->get($did)->getRepoRoot()->findByDid($did);
-        } catch (RepoRootNotFoundException $e) {
-            throw $this->namedError('RepoNotFound', sprintf('Could not find root for DID: %s', $did));
-        }
-
-        return $this->respondWithData(new GetLatestCommitResponse(
-            cid: $root->getCid(),
-            rev: $root->getRev(),
+        return $this->respondWithData(new GetRepoStatusResponse(
+            did: $did,
+            active: $active,
+            status: $status,
+            rev: $rev,
         ));
-    }
-
-    private function namedError(string $error, string $message): XrpcException
-    {
-        return new XrpcException(
-            $error,
-            $message,
-            StatusCodeInterface::STATUS_BAD_REQUEST
-        );
     }
 }

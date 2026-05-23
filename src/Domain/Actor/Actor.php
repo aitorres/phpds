@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Actor;
 
 use App\Domain\Common\StringNormalizer;
+use App\Domain\Pds\Atproto\Sync\RepoView;
 use DateTimeImmutable;
 use JsonSerializable;
 
@@ -66,6 +67,31 @@ class Actor implements JsonSerializable
     public function getDeleteAfter(): ?DateTimeImmutable
     {
         return $this->deleteAfter;
+    }
+
+    /**
+     * Derive the lex `status` value for this actor's repo.
+     *
+     * Returns null when the repo is active, otherwise the matching
+     * non-active status string (e.g. "takendown", "deactivated").
+     * Takedown takes precedence over deactivation.
+     */
+    public function getRepoStatus(): ?string
+    {
+        if ($this->takedownRef !== null) {
+            return RepoView::STATUS_TAKENDOWN;
+        }
+
+        if ($this->deactivatedAt !== null) {
+            return RepoView::STATUS_DEACTIVATED;
+        }
+
+        return null;
+    }
+
+    public function isRepoActive(): bool
+    {
+        return $this->getRepoStatus() === null;
     }
 
     /**

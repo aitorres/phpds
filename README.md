@@ -13,6 +13,7 @@ The following XRPC endpoints are implemented:
 - `com.atproto.server.createInviteCode`
 - `com.atproto.server.describeServer`
 - `com.atproto.sync.getLatestCommit`
+- `com.atproto.sync.getRepoStatus`
 - `com.atproto.sync.listRepos`
 
 ## Installation
