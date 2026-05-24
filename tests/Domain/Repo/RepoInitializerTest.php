@@ -8,7 +8,7 @@ use App\Domain\ActorStore\ActorStore;
 use App\Domain\Repo\CidLink;
 use App\Domain\Repo\CidUtil;
 use App\Domain\Repo\Commit;
-use App\Domain\Repo\EmptyMst;
+use App\Domain\Repo\MstNode;
 use App\Domain\Repo\RepoBlock;
 use App\Domain\Repo\RepoBlockRepository;
 use App\Domain\Repo\RepoInitializer;
@@ -29,7 +29,7 @@ class RepoInitializerTest extends TestCase
         $signature = str_repeat("\xcd", 64);
         $signer    = new RecordingKeypair($signature);
 
-        [$mstBytes, $mstCid] = EmptyMst::encode($encoder);
+        [$mstBytes, $mstCid] = MstNode::empty()->encode($encoder);
 
         $repoBlocks = $this->prophesize(RepoBlockRepository::class);
         $repoRoot   = $this->prophesize(RepoRootRepository::class);

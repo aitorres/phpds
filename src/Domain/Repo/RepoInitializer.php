@@ -34,7 +34,7 @@ final class RepoInitializer
     {
         $rev = Tid::next();
 
-        [$mstBytes, $mstCid] = EmptyMst::encode($this->cborEncoder);
+        [$mstBytes, $mstCid] = MstNode::empty()->encode($this->cborEncoder);
 
         $unsigned = new UnsignedCommit(
             did: $did,
