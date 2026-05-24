@@ -62,7 +62,7 @@
         "test": "phpunit",
         "phpcs": "phpcs --standard=PSR12 src/ tests/",
         "phpcbf": "phpcbf --standard=PSR12 src/ tests/",
-        "phpstan": "phpstan analyse -l max src/ tests/",
-        "phpstan-githook": "phpstan analyse -l max --memory-limit 512M"
+        "phpstan": "phpstan analyse src/ tests/",
+        "phpstan-githook": "phpstan analyse --memory-limit 512M"
     }
 }

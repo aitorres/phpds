@@ -38,12 +38,9 @@ final class Secp256k1Keypair implements Keypair
     public function sign(string $message): string
     {
         $hash = hash('sha256', $message, true);
-        // elliptic-php has no type stubs; $sig is an object with BN properties r and s.
         $sig  = $this->key->sign(bin2hex($hash), ['canonical' => true]);
 
-        /** @phpstan-ignore-next-line */
         $r = self::pad32((string) $sig->r->toString(16));
-        /** @phpstan-ignore-next-line */
         $s = self::pad32((string) $sig->s->toString(16));
 
         $bin = hex2bin($r . $s);
@@ -69,7 +66,6 @@ final class Secp256k1Keypair implements Keypair
     public function getPublicKeyBytes(): string
     {
         // elliptic-php has no type stubs; getPublic() returns mixed.
-        /** @phpstan-ignore-next-line */
         $bin = hex2bin((string) $this->key->getPublic(true, 'hex'));
         if ($bin === false || strlen($bin) !== 33) {
             throw new \RuntimeException('Failed to encode compressed public key');
@@ -79,8 +75,6 @@ final class Secp256k1Keypair implements Keypair
 
     public function export(): string
     {
-        // elliptic-php has no type stubs; getPrivate() returns mixed.
-        /** @phpstan-ignore-next-line */
         $hex = self::pad32((string) $this->key->getPrivate('hex'));
         $bin = hex2bin($hex);
         if ($bin === false || strlen($bin) !== 32) {

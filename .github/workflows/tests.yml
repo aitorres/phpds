@@ -29,11 +29,11 @@ jobs:
 
       - name: Coding standards
         if: matrix.analysis
-        run: vendor/bin/phpcs
+        run: composer phpcs
 
       - name: Static analysis
         if: matrix.analysis
-        run: vendor/bin/phpstan
+        run: composer phpstan-githook
 
       - name: Tests
         if: '!matrix.analysis'
