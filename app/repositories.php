@@ -12,6 +12,7 @@ use App\Domain\Account\AppPassword\AppPasswordRepository;
 use App\Domain\Account\Auth\AccountAuthenticator;
 use App\Domain\Account\Auth\RepositoryAccountAuthenticator;
 use App\Domain\Account\EmailToken\EmailTokenRepository;
+use App\Domain\Account\HandleValidator;
 use App\Domain\Account\InviteCode\InviteCodeRepository;
 use App\Domain\Account\InviteCode\InviteCodeGenerator;
 use App\Domain\Account\Password\PasswordHasher;
@@ -187,6 +188,15 @@ return function (ContainerBuilder $containerBuilder) use ($dbSettings, $getDb) {
         },
         EmailTokenRepository::class => fn (ContainerInterface $c): SqliteEmailTokenRepository =>
             new SqliteEmailTokenRepository($getDb($c, 'db.account')),
+        HandleValidator::class => function (ContainerInterface $c): HandleValidator {
+            $settings = $c->get(SettingsInterface::class);
+            assert($settings instanceof SettingsInterface);
+            /** @var array{hostname: string} $pdsSettings */
+            $pdsSettings = $settings->get('pds');
+            $actors = $c->get(ActorRepository::class);
+            assert($actors instanceof ActorRepository);
+            return new HandleValidator($actors, [".{$pdsSettings['hostname']}"]);
+        },
         InviteCodeRepository::class => fn (ContainerInterface $c): SqliteInviteCodeRepository =>
             new SqliteInviteCodeRepository($getDb($c, 'db.account')),
         InviteCodeGenerator::class => function (ContainerInterface $c): InviteCodeGenerator {
