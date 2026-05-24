@@ -23,6 +23,7 @@ use App\Domain\Crypto\Keypair;
 use App\Domain\Crypto\KeypairFactory;
 use App\Domain\Did\DidCacheRepository;
 use App\Domain\Did\DidResolver;
+use App\Domain\Did\PlcDirectoryClient;
 use App\Domain\Lexicon\LexiconRepository;
 use App\Domain\OAuth\AccountDeviceRepository;
 use App\Domain\OAuth\AuthorizationRequestRepository;
@@ -38,9 +39,10 @@ use App\Domain\Repo\DagCborEncoder;
 use App\Domain\Repo\RepoRootRepository;
 use App\Domain\Sequencer\SequencerRepository;
 use App\Infrastructure\Account\Password\ScryptPasswordHasher;
-use App\Infrastructure\Atproto\AppView\GuzzleAppViewClient;
+use App\Infrastructure\Atproto\AppView\HttpAppViewClient;
 use App\Infrastructure\Auth\JwtAuthTokenIssuer;
 use App\Infrastructure\Crypto\Secp256k1KeypairFactory;
+use App\Infrastructure\Did\HttpPlcDirectoryClient;
 use App\Infrastructure\Did\HttpDidResolver;
 use App\Infrastructure\Database\Database;
 use App\Infrastructure\Database\Schema\AccountSchema;
@@ -133,7 +135,7 @@ return function (ContainerBuilder $containerBuilder) use ($dbSettings, $getDb) {
                 'headers' => ['Accept' => 'application/json'],
             ]);
 
-            return new GuzzleAppViewClient($httpClient);
+            return new HttpAppViewClient($httpClient);
         },
         AccountRepository::class => fn (ContainerInterface $c): SqliteAccountRepository =>
             new SqliteAccountRepository($getDb($c, 'db.account')),
@@ -208,6 +210,16 @@ return function (ContainerBuilder $containerBuilder) use ($dbSettings, $getDb) {
             new SqliteLexiconRepository($getDb($c, 'db.account')),
         OAuthTokenRepository::class => fn (ContainerInterface $c): SqliteOAuthTokenRepository =>
             new SqliteOAuthTokenRepository($getDb($c, 'db.account')),
+        PlcDirectoryClient::class => function (ContainerInterface $c): HttpPlcDirectoryClient {
+            $settings = $c->get(SettingsInterface::class);
+            assert($settings instanceof SettingsInterface);
+            /** @var array{plcDirectoryUrl: string} $pdsSettings */
+            $pdsSettings = $settings->get('pds');
+            $http = new GuzzleClient(['timeout' => 15.0]);
+            $cbor = $c->get(DagCborEncoder::class);
+            assert($cbor instanceof DagCborEncoder);
+            return new HttpPlcDirectoryClient($http, $cbor, $pdsSettings['plcDirectoryUrl']);
+        },
         PasswordHasher::class => autowire(ScryptPasswordHasher::class),
         RefreshTokenRepository::class => fn (ContainerInterface $c): SqliteRefreshTokenRepository =>
             new SqliteRefreshTokenRepository($getDb($c, 'db.account')),

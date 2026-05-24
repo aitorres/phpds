@@ -9,7 +9,7 @@ use App\Domain\Pds\Atproto\AppView\AppViewException;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 
-class GuzzleAppViewClient implements AppViewClient
+class HttpAppViewClient implements AppViewClient
 {
     private ClientInterface $httpClient;
 

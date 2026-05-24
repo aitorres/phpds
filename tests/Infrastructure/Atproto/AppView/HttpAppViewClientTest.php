@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Infrastructure\Atproto\AppView;
 
 use App\Domain\Pds\Atproto\AppView\AppViewException;
-use App\Infrastructure\Atproto\AppView\GuzzleAppViewClient;
+use App\Infrastructure\Atproto\AppView\HttpAppViewClient;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
@@ -15,13 +15,13 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Tests\TestCase;
 
-class GuzzleAppViewClientTest extends TestCase
+class HttpAppViewClientTest extends TestCase
 {
     /**
      * @param list<Response|\Throwable> $queue
      * @param array<int, array<string, mixed>> $history
      */
-    private function makeClient(array $queue, array &$history = []): GuzzleAppViewClient
+    private function makeClient(array $queue, array &$history = []): HttpAppViewClient
     {
         $mock = new MockHandler($queue);
         $stack = HandlerStack::create($mock);
@@ -33,7 +33,7 @@ class GuzzleAppViewClientTest extends TestCase
             'base_uri' => 'https://api.bsky.app/',
         ]);
 
-        return new GuzzleAppViewClient($httpClient);
+        return new HttpAppViewClient($httpClient);
     }
 
     public function testResolveHandleReturnsDidOnSuccess(): void
