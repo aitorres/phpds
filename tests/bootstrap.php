@@ -27,3 +27,10 @@ $jwtSecret = is_string($_ENV['PDS_JWT_SECRET'] ?? null) && $_ENV['PDS_JWT_SECRET
     : 'test-jwt-secret';
 $_ENV['PDS_JWT_SECRET'] = $jwtSecret;
 putenv('PDS_JWT_SECRET=' . $jwtSecret);
+
+$plcRotationHex = is_string($_ENV['PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX'] ?? null)
+    && $_ENV['PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX'] !== ''
+    ? $_ENV['PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX']
+    : str_repeat('a', 64);
+$_ENV['PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX'] = $plcRotationHex;
+putenv('PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX=' . $plcRotationHex);

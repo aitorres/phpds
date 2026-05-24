@@ -19,6 +19,8 @@ use App\Domain\Account\RefreshToken\RefreshTokenRepository;
 use App\Domain\Actor\ActorRepository;
 use App\Domain\ActorStore\ActorStoreFactory;
 use App\Domain\Auth\AuthTokenIssuer;
+use App\Domain\Crypto\Keypair;
+use App\Domain\Crypto\KeypairFactory;
 use App\Domain\Did\DidCacheRepository;
 use App\Domain\Did\DidResolver;
 use App\Domain\Lexicon\LexiconRepository;
@@ -38,6 +40,7 @@ use App\Domain\Sequencer\SequencerRepository;
 use App\Infrastructure\Account\Password\ScryptPasswordHasher;
 use App\Infrastructure\Atproto\AppView\GuzzleAppViewClient;
 use App\Infrastructure\Auth\JwtAuthTokenIssuer;
+use App\Infrastructure\Crypto\Secp256k1KeypairFactory;
 use App\Infrastructure\Did\HttpDidResolver;
 use App\Infrastructure\Database\Database;
 use App\Infrastructure\Database\Schema\AccountSchema;
@@ -191,6 +194,16 @@ return function (ContainerBuilder $containerBuilder) use ($dbSettings, $getDb) {
             $pdsSettings = $settings->get('pds');
             return new InviteCodeGenerator($pdsSettings['hostname']);
         },
+        Keypair::class => function (ContainerInterface $c): Keypair {
+            $settings = $c->get(SettingsInterface::class);
+            assert($settings instanceof SettingsInterface);
+            /** @var array{plcRotationKeyHex: string} $pdsSettings */
+            $pdsSettings = $settings->get('pds');
+            $factory = $c->get(KeypairFactory::class);
+            assert($factory instanceof KeypairFactory);
+            return $factory->fromPrivateKeyHex($pdsSettings['plcRotationKeyHex']);
+        },
+        KeypairFactory::class => autowire(Secp256k1KeypairFactory::class),
         LexiconRepository::class => fn (ContainerInterface $c): SqliteLexiconRepository =>
             new SqliteLexiconRepository($getDb($c, 'db.account')),
         OAuthTokenRepository::class => fn (ContainerInterface $c): SqliteOAuthTokenRepository =>

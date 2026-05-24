@@ -6,6 +6,7 @@ namespace App\Domain\ActorStore;
 
 use App\Domain\Blob\BlobRepository;
 use App\Domain\Blob\BlobStore;
+use App\Domain\Crypto\SigningKeyRepository;
 use App\Domain\Preference\AccountPrefRepository;
 use App\Domain\Record\BacklinkRepository;
 use App\Domain\Record\RecordBlobRepository;
@@ -32,6 +33,7 @@ class ActorStore
         private readonly RepoBlockRepository $repoBlocks,
         private readonly AccountPrefRepository $prefs,
         private readonly RepoRootRepository $repoRoot,
+        private readonly SigningKeyRepository $signingKeys,
     ) {
     }
 
@@ -78,5 +80,10 @@ class ActorStore
     public function getRepoRoot(): RepoRootRepository
     {
         return $this->repoRoot;
+    }
+
+    public function getSigningKeys(): SigningKeyRepository
+    {
+        return $this->signingKeys;
     }
 }

@@ -89,5 +89,15 @@ final class ActorStoreSchema
             )'
         );
         $pdo->exec('CREATE INDEX IF NOT EXISTS account_pref_name_idx ON account_pref (name)');
+
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS signing_key (
+                id          INTEGER PRIMARY KEY CHECK (id = 1),
+                curve       TEXT NOT NULL,
+                private_key BLOB NOT NULL,
+                did_key     TEXT NOT NULL,
+                created_at  TEXT NOT NULL
+            )'
+        );
     }
 }

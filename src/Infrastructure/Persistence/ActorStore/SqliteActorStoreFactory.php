@@ -10,6 +10,7 @@ use App\Infrastructure\Database\Database;
 use App\Infrastructure\Database\Schema\ActorStoreSchema;
 use App\Infrastructure\Persistence\Blob\DiskBlobStore;
 use App\Infrastructure\Persistence\Blob\SqliteBlobRepository;
+use App\Infrastructure\Persistence\Crypto\SqliteSigningKeyRepository;
 use App\Infrastructure\Persistence\Preference\SqliteAccountPrefRepository;
 use App\Infrastructure\Persistence\Record\SqliteBacklinkRepository;
 use App\Infrastructure\Persistence\Record\SqliteRecordBlobRepository;
@@ -55,6 +56,7 @@ class SqliteActorStoreFactory implements ActorStoreFactory
             repoBlocks: new SqliteRepoBlockRepository($db),
             prefs: new SqliteAccountPrefRepository($db),
             repoRoot: new SqliteRepoRootRepository($db),
+            signingKeys: new SqliteSigningKeyRepository($db),
         );
     }
 

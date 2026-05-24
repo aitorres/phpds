@@ -18,6 +18,20 @@ final class Base32
     public const ALPHABET = 'abcdefghijklmnopqrstuvwxyz234567';
 
     /**
+     * Encode a non-negative integer as a fixed-length base32 string using the
+     * given 32-character alphabet.  Extracts $length groups of 5 bits, MSB
+     * first (big-endian).
+     */
+    public static function encodeInt(int $value, int $length, string $alphabet = self::ALPHABET): string
+    {
+        $out = '';
+        for ($i = $length - 1; $i >= 0; $i--) {
+            $out .= $alphabet[($value >> ($i * 5)) & 0x1f];
+        }
+        return $out;
+    }
+
+    /**
      * Encode raw bytes as base32 lowercase, without padding.
      */
     public static function encode(string $bytes): string

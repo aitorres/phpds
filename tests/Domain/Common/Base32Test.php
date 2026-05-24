@@ -92,4 +92,32 @@ class Base32Test extends TestCase
         $this->expectException(InvalidArgumentException::class);
         Base32::decode('MZXW6');
     }
+
+    public function testEncodeIntZeroProducesAllFirstChar(): void
+    {
+        // 0 encoded with length 3 must be 'aaa' (index 0 of the default alphabet).
+        $this->assertSame('aaa', Base32::encodeInt(0, 3));
+    }
+
+    public function testEncodeIntMaxFiveBitsProducesLastChar(): void
+    {
+        // 0x1f == 31 in one 5-bit group → last char of alphabet '7'
+        $this->assertSame('7', Base32::encodeInt(0x1f, 1));
+    }
+
+    public function testEncodeIntCustomAlphabet(): void
+    {
+        // Atproto s32 alphabet, value 0 with length 1 → first char '2'
+        $alphabet = '234567abcdefghijklmnopqrstuvwxyz';
+        $this->assertSame('2', Base32::encodeInt(0, 1, $alphabet));
+        // Max 5-bit value (31) → last char 'z'
+        $this->assertSame('z', Base32::encodeInt(31, 1, $alphabet));
+    }
+
+    public function testEncodeIntMultipleGroupsBigEndian(): void
+    {
+        // 2 groups: high 5 bits = 1 → 'b', low 5 bits = 0 → 'a'
+        // value = (1 << 5) | 0 = 32
+        $this->assertSame('ba', Base32::encodeInt(32, 2));
+    }
 }

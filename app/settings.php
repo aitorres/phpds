@@ -38,6 +38,7 @@ return function (ContainerBuilder $containerBuilder) {
                     'adminPassword' => $getRequiredEnv('PDS_ADMIN_PASSWORD'),
                     'jwtSecret' => $getRequiredEnv('PDS_JWT_SECRET'),
                     'plcDirectoryUrl' => $_ENV['PDS_PLC_DIRECTORY_URL'] ?? 'https://plc.directory',
+                    'plcRotationKeyHex' => $getRequiredEnv('PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX'),
                 ],
                 // Persistence (SQLite) settings
                 'database' => (static function () use ($getRequiredEnv): array {
