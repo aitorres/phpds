@@ -1,6 +1,11 @@
-FROM composer:latest AS deps
+FROM php:8.5-cli-alpine AS deps
 
 WORKDIR /app
+
+RUN apk add --no-cache gmp-dev \
+	&& docker-php-ext-install gmp
+
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 COPY composer.json composer.lock* ./
 RUN composer install \
@@ -16,6 +21,9 @@ WORKDIR /var/www
 
 ENV APP_ENV=production
 ENV PORT=8080
+
+RUN apk add --no-cache gmp-dev \
+	&& docker-php-ext-install gmp
 
 COPY --from=deps /app/vendor ./vendor
 COPY . .
