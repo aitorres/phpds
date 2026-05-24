@@ -9,13 +9,18 @@ declare(strict_types=1);
 use App\Application\Settings\SettingsInterface;
 use App\Domain\Account\AccountRepository;
 use App\Domain\Account\AppPassword\AppPasswordRepository;
+use App\Domain\Account\Auth\AccountAuthenticator;
+use App\Domain\Account\Auth\RepositoryAccountAuthenticator;
 use App\Domain\Account\EmailToken\EmailTokenRepository;
 use App\Domain\Account\InviteCode\InviteCodeRepository;
 use App\Domain\Account\InviteCode\InviteCodeGenerator;
+use App\Domain\Account\Password\PasswordHasher;
 use App\Domain\Account\RefreshToken\RefreshTokenRepository;
 use App\Domain\Actor\ActorRepository;
 use App\Domain\ActorStore\ActorStoreFactory;
+use App\Domain\Auth\AuthTokenIssuer;
 use App\Domain\Did\DidCacheRepository;
+use App\Domain\Did\DidResolver;
 use App\Domain\Lexicon\LexiconRepository;
 use App\Domain\OAuth\AccountDeviceRepository;
 use App\Domain\OAuth\AuthorizationRequestRepository;
@@ -30,7 +35,10 @@ use App\Domain\Repo\DagCborDecoder;
 use App\Domain\Repo\DagCborEncoder;
 use App\Domain\Repo\RepoRootRepository;
 use App\Domain\Sequencer\SequencerRepository;
+use App\Infrastructure\Account\Password\ScryptPasswordHasher;
 use App\Infrastructure\Atproto\AppView\GuzzleAppViewClient;
+use App\Infrastructure\Auth\JwtAuthTokenIssuer;
+use App\Infrastructure\Did\HttpDidResolver;
 use App\Infrastructure\Database\Database;
 use App\Infrastructure\Database\Schema\AccountSchema;
 use App\Infrastructure\Database\Schema\DidCacheSchema;
@@ -126,6 +134,7 @@ return function (ContainerBuilder $containerBuilder) use ($dbSettings, $getDb) {
         },
         AccountRepository::class => fn (ContainerInterface $c): SqliteAccountRepository =>
             new SqliteAccountRepository($getDb($c, 'db.account')),
+        AccountAuthenticator::class => autowire(RepositoryAccountAuthenticator::class),
         AccountDeviceRepository::class => fn (ContainerInterface $c): SqliteAccountDeviceRepository =>
             new SqliteAccountDeviceRepository($getDb($c, 'db.account')),
         ActorRepository::class => fn (ContainerInterface $c): SqliteActorRepository =>
@@ -149,8 +158,28 @@ return function (ContainerBuilder $containerBuilder) use ($dbSettings, $getDb) {
             new SqliteDeviceRepository($getDb($c, 'db.account')),
         DidCacheRepository::class => fn (ContainerInterface $c): SqliteDidCacheRepository =>
             new SqliteDidCacheRepository($getDb($c, 'db.didCache')),
+        DidResolver::class => function (ContainerInterface $c): HttpDidResolver {
+            $settings = $c->get(SettingsInterface::class);
+            assert($settings instanceof SettingsInterface);
+            /** @var array{plcDirectoryUrl: string} $pdsSettings */
+            $pdsSettings = $settings->get('pds');
+            $httpClient = new GuzzleClient(['timeout' => 10.0]);
+            $cache = $c->get(DidCacheRepository::class);
+            assert($cache instanceof SqliteDidCacheRepository);
+            return new HttpDidResolver($httpClient, $cache, $pdsSettings['plcDirectoryUrl']);
+        },
         AppPasswordRepository::class => fn (ContainerInterface $c): SqliteAppPasswordRepository =>
             new SqliteAppPasswordRepository($getDb($c, 'db.account')),
+        AuthTokenIssuer::class => function (ContainerInterface $c): JwtAuthTokenIssuer {
+            $settings = $c->get(SettingsInterface::class);
+            assert($settings instanceof SettingsInterface);
+            /** @var array{hostname: string, jwtSecret: string} $pdsSettings */
+            $pdsSettings = $settings->get('pds');
+            return new JwtAuthTokenIssuer(
+                secret: $pdsSettings['jwtSecret'],
+                issuer: $pdsSettings['hostname'],
+            );
+        },
         EmailTokenRepository::class => fn (ContainerInterface $c): SqliteEmailTokenRepository =>
             new SqliteEmailTokenRepository($getDb($c, 'db.account')),
         InviteCodeRepository::class => fn (ContainerInterface $c): SqliteInviteCodeRepository =>
@@ -166,6 +195,7 @@ return function (ContainerBuilder $containerBuilder) use ($dbSettings, $getDb) {
             new SqliteLexiconRepository($getDb($c, 'db.account')),
         OAuthTokenRepository::class => fn (ContainerInterface $c): SqliteOAuthTokenRepository =>
             new SqliteOAuthTokenRepository($getDb($c, 'db.account')),
+        PasswordHasher::class => autowire(ScryptPasswordHasher::class),
         RefreshTokenRepository::class => fn (ContainerInterface $c): SqliteRefreshTokenRepository =>
             new SqliteRefreshTokenRepository($getDb($c, 'db.account')),
         RepoRootRepository::class => fn (ContainerInterface $c): SqliteRepoRootRepository =>

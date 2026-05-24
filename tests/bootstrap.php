@@ -21,3 +21,9 @@ $adminPassword = is_string($_ENV['PDS_ADMIN_PASSWORD'] ?? null) && $_ENV['PDS_AD
     : 'test-admin-password';
 $_ENV['PDS_ADMIN_PASSWORD'] = $adminPassword;
 putenv('PDS_ADMIN_PASSWORD=' . $adminPassword);
+
+$jwtSecret = is_string($_ENV['PDS_JWT_SECRET'] ?? null) && $_ENV['PDS_JWT_SECRET'] !== ''
+    ? $_ENV['PDS_JWT_SECRET']
+    : 'test-jwt-secret';
+$_ENV['PDS_JWT_SECRET'] = $jwtSecret;
+putenv('PDS_JWT_SECRET=' . $jwtSecret);

@@ -36,6 +36,8 @@ return function (ContainerBuilder $containerBuilder) {
                     'termsOfServiceUrl' => $_ENV['PDS_TERMS_OF_SERVICE_URL'] ?? null,
                     'email' => $_ENV['PDS_CONTACT_EMAIL_ADDRESS'] ?? null,
                     'adminPassword' => $getRequiredEnv('PDS_ADMIN_PASSWORD'),
+                    'jwtSecret' => $getRequiredEnv('PDS_JWT_SECRET'),
+                    'plcDirectoryUrl' => $_ENV['PDS_PLC_DIRECTORY_URL'] ?? 'https://plc.directory',
                 ],
                 // Persistence (SQLite) settings
                 'database' => (static function () use ($getRequiredEnv): array {
