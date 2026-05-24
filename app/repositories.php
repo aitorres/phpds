@@ -37,6 +37,7 @@ use App\Domain\Repo\CarReader;
 use App\Domain\Repo\CarWriter;
 use App\Domain\Repo\DagCborDecoder;
 use App\Domain\Repo\DagCborEncoder;
+use App\Domain\Repo\RepoInitializer;
 use App\Domain\Repo\RepoRootRepository;
 use App\Domain\Sequencer\SequencerRepository;
 use App\Infrastructure\Account\Password\ScryptPasswordHasher;
@@ -233,6 +234,7 @@ return function (ContainerBuilder $containerBuilder) use ($dbSettings, $getDb) {
         PasswordHasher::class => autowire(ScryptPasswordHasher::class),
         RefreshTokenRepository::class => fn (ContainerInterface $c): SqliteRefreshTokenRepository =>
             new SqliteRefreshTokenRepository($getDb($c, 'db.account')),
+        RepoInitializer::class => autowire(RepoInitializer::class),
         RepoRootRepository::class => fn (ContainerInterface $c): SqliteRepoRootRepository =>
             new SqliteRepoRootRepository($getDb($c, 'db.account')),
         SequencerRepository::class => fn (ContainerInterface $c): SqliteSequencerRepository =>
