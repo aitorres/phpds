@@ -123,19 +123,6 @@ class CreateSessionAction extends PdsAction
             ? AuthTokenIssuer::SCOPE_APP_PASS_PRIVILEGED
             : AuthTokenIssuer::SCOPE_APP_PASS;
     }
-
-    /**
-     * @param array<string, mixed> $body
-     */
-    private function requireString(array $body, string $key): string
-    {
-        $value = $body[$key] ?? null;
-        if (!is_string($value) || $value === '') {
-            $this->throwMissingKeyException($key);
-        }
-        return $value;
-    }
-
     private function parseAllowTakendown(mixed $raw): bool
     {
         if ($raw === null) {

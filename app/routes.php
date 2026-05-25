@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Application\Actions\Pds\Atproto\Admin\GetInviteCodesAction;
 use App\Application\Actions\Pds\Atproto\Identity\ResolveHandleAction;
+use App\Application\Actions\Pds\Atproto\Server\CreateAccountAction;
 use App\Application\Actions\Pds\Atproto\Server\CreateInviteCodeAction;
 use App\Application\Actions\Pds\Atproto\Server\CreateSessionAction;
 use App\Application\Actions\Pds\Atproto\Server\DescribeServerAction;
@@ -68,6 +69,7 @@ ASCII;
             ->add(AdminAuthMiddleware::class);
 
         // atproto server
+        $group->post('/com.atproto.server.createAccount', CreateAccountAction::class);
         $group->post('/com.atproto.server.createInviteCode', CreateInviteCodeAction::class)
             ->add(AdminAuthMiddleware::class);
         $group->post('/com.atproto.server.createSession', CreateSessionAction::class);

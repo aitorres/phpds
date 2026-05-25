@@ -10,6 +10,7 @@ The following XRPC endpoints are implemented:
 
 - `com.atproto.admin.getInviteCodes`
 - `com.atproto.identity.resolveHandle`
+- `com.atproto.server.createAccount`
 - `com.atproto.server.createInviteCode`
 - `com.atproto.server.createSession`
 - `com.atproto.server.describeServer`

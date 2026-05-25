@@ -7,6 +7,7 @@
 declare(strict_types=1);
 
 use App\Application\Settings\SettingsInterface;
+use App\Domain\Account\AccountCreator;
 use App\Domain\Account\AccountRepository;
 use App\Domain\Account\AppPassword\AppPasswordRepository;
 use App\Domain\Account\Auth\AccountAuthenticator;
@@ -143,6 +144,61 @@ return function (ContainerBuilder $containerBuilder) use ($dbSettings, $getDb) {
         AccountRepository::class => fn (ContainerInterface $c): SqliteAccountRepository =>
             new SqliteAccountRepository($getDb($c, 'db.account')),
         AccountAuthenticator::class => autowire(RepositoryAccountAuthenticator::class),
+        AccountCreator::class => function (ContainerInterface $c): AccountCreator {
+            $settings = $c->get(SettingsInterface::class);
+            assert($settings instanceof SettingsInterface);
+            /** @var array{hostname: string} $pdsSettings */
+            $pdsSettings = $settings->get('pds');
+            $rotationKey = $c->get(Keypair::class);
+            assert($rotationKey instanceof Keypair);
+            $accounts = $c->get(AccountRepository::class);
+            assert($accounts instanceof AccountRepository);
+            $actors = $c->get(ActorRepository::class);
+            assert($actors instanceof ActorRepository);
+            $handleValidator = $c->get(HandleValidator::class);
+            assert($handleValidator instanceof HandleValidator);
+            $inviteCodes = $c->get(InviteCodeRepository::class);
+            assert($inviteCodes instanceof InviteCodeRepository);
+            $actorStores = $c->get(ActorStoreFactory::class);
+            assert($actorStores instanceof ActorStoreFactory);
+            $keypairs = $c->get(KeypairFactory::class);
+            assert($keypairs instanceof KeypairFactory);
+            $passwords = $c->get(PasswordHasher::class);
+            assert($passwords instanceof PasswordHasher);
+            $plc = $c->get(PlcDirectoryClient::class);
+            assert($plc instanceof PlcDirectoryClient);
+            $didResolver = $c->get(DidResolver::class);
+            assert($didResolver instanceof DidResolver);
+            $repoInit = $c->get(RepoInitializer::class);
+            assert($repoInit instanceof RepoInitializer);
+            $sequencer = $c->get(SequencerRepository::class);
+            assert($sequencer instanceof SequencerRepository);
+            $events = $c->get(SubscribeReposEventFactory::class);
+            assert($events instanceof SubscribeReposEventFactory);
+            $tokens = $c->get(AuthTokenIssuer::class);
+            assert($tokens instanceof AuthTokenIssuer);
+            $refreshTokens = $c->get(RefreshTokenRepository::class);
+            assert($refreshTokens instanceof RefreshTokenRepository);
+            return new AccountCreator(
+                accounts: $accounts,
+                actors: $actors,
+                handleValidator: $handleValidator,
+                inviteCodes: $inviteCodes,
+                actorStores: $actorStores,
+                keypairs: $keypairs,
+                passwordHasher: $passwords,
+                plc: $plc,
+                didResolver: $didResolver,
+                repoInitializer: $repoInit,
+                sequencer: $sequencer,
+                events: $events,
+                tokens: $tokens,
+                refreshTokens: $refreshTokens,
+                plcRotationKey: $rotationKey,
+                inviteRequired: true,
+                hostname: $pdsSettings['hostname'],
+            );
+        },
         AccountDeviceRepository::class => fn (ContainerInterface $c): SqliteAccountDeviceRepository =>
             new SqliteAccountDeviceRepository($getDb($c, 'db.account')),
         ActorRepository::class => fn (ContainerInterface $c): SqliteActorRepository =>
