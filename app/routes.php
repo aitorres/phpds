@@ -36,6 +36,7 @@ return function (App $app) {
 |_|         |_|
 ASCII;
 
+        $response->getBody()->write("<title>phpds - an atproto personal data server in php</title>");
         $response->getBody()->write("<pre>{$asciiArt}</pre>");
         $response->getBody()->write("<p>this is phpds, an atproto personal data server implemented in PHP!</p>");
         $response->getBody()->write("<p>useful routes are under /xrpc/</p>");
