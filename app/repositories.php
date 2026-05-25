@@ -40,6 +40,7 @@ use App\Domain\Repo\DagCborEncoder;
 use App\Domain\Repo\RepoInitializer;
 use App\Domain\Repo\RepoRootRepository;
 use App\Domain\Sequencer\SequencerRepository;
+use App\Domain\Sequencer\SubscribeReposEventFactory;
 use App\Infrastructure\Account\Password\ScryptPasswordHasher;
 use App\Infrastructure\Atproto\AppView\HttpAppViewClient;
 use App\Infrastructure\Auth\JwtAuthTokenIssuer;
@@ -239,6 +240,7 @@ return function (ContainerBuilder $containerBuilder) use ($dbSettings, $getDb) {
             new SqliteRepoRootRepository($getDb($c, 'db.account')),
         SequencerRepository::class => fn (ContainerInterface $c): SqliteSequencerRepository =>
             new SqliteSequencerRepository($getDb($c, 'db.sequencer')),
+        SubscribeReposEventFactory::class => autowire(SubscribeReposEventFactory::class),
         UsedRefreshTokenRepository::class => fn (ContainerInterface $c): SqliteUsedRefreshTokenRepository =>
             new SqliteUsedRefreshTokenRepository($getDb($c, 'db.account')),
     ]);
