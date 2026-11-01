@@ -23,7 +23,7 @@
         "php": ">=8.4",
         "ext-json": "*",
         "ext-sodium": "*",
-        "firebase/php-jwt": "^7.0",
+        "firebase/php-jwt": "^7.2",
         "guzzlehttp/guzzle": "^8.0",
         "monolog/monolog": "^3.10.0",
         "php-di/php-di": "^7.1.1",
